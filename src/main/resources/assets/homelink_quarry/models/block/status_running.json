@@ -1,0 +1,10 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "lamp": "minecraft:block/lime_concrete"
+  },
+  "elements": [
+    {"name": "status_line", "from": [4.5, 9.5, 0.1], "to": [11.5, 10, 0.17], "faces": {"north": {"texture": "#lamp", "neoforge_data": {"block_light": 15, "sky_light": 15}}}, "shade": false},
+    {"name": "status_dot", "from": [4.5, 7.5, 0.1], "to": [5.25, 8.25, 0.17], "faces": {"north": {"texture": "#lamp", "neoforge_data": {"block_light": 15, "sky_light": 15}}}, "shade": false}
+  ]
+}

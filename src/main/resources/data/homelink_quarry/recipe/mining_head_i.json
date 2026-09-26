@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["IRI", "CBC", " I "],
+  "key": {
+    "I": {"item": "minecraft:iron_ingot"},
+    "R": {"item": "minecraft:redstone"},
+    "C": {"item": "minecraft:copper_ingot"},
+    "B": {"item": "homecore:homelink_circuit_board"}
+  },
+  "result": {"id": "homelink_quarry:mining_head_i", "count": 1}
+}

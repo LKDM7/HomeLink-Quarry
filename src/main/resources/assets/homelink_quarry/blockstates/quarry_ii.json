@@ -1,0 +1,16 @@
+{
+  "multipart": [
+    {"when": {"facing": "north"}, "apply": {"model": "homelink_quarry:block/quarry_ii", "y": 0}},
+    {"when": {"facing": "east"}, "apply": {"model": "homelink_quarry:block/quarry_ii", "y": 90}},
+    {"when": {"facing": "south"}, "apply": {"model": "homelink_quarry:block/quarry_ii", "y": 180}},
+    {"when": {"facing": "west"}, "apply": {"model": "homelink_quarry:block/quarry_ii", "y": 270}},
+    {"when": {"facing": "north", "port": "1|2"}, "apply": {"model": "homelink_quarry:block/quarry_port_lit", "y": 0}},
+    {"when": {"facing": "east", "port": "1|2"}, "apply": {"model": "homelink_quarry:block/quarry_port_lit", "y": 90}},
+    {"when": {"facing": "south", "port": "1|2"}, "apply": {"model": "homelink_quarry:block/quarry_port_lit", "y": 180}},
+    {"when": {"facing": "west", "port": "1|2"}, "apply": {"model": "homelink_quarry:block/quarry_port_lit", "y": 270}},
+    {"when": {"facing": "north", "port": "2"}, "apply": {"model": "homelink_quarry:block/quarry_port_connector", "y": 0}},
+    {"when": {"facing": "east", "port": "2"}, "apply": {"model": "homelink_quarry:block/quarry_port_connector", "y": 90}},
+    {"when": {"facing": "south", "port": "2"}, "apply": {"model": "homelink_quarry:block/quarry_port_connector", "y": 180}},
+    {"when": {"facing": "west", "port": "2"}, "apply": {"model": "homelink_quarry:block/quarry_port_connector", "y": 270}}
+  ]
+}

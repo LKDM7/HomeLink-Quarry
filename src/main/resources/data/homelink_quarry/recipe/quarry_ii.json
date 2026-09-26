@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "DMD",
+    "GQG",
+    "CBC"
+  ],
+  "key": {
+    "D": {"item": "minecraft:diamond"},
+    "M": {"item": "homecore:homelink_microprocessor"},
+    "G": {"item": "minecraft:gold_ingot"},
+    "Q": {"item": "homelink_quarry:quarry_i"},
+    "C": {"item": "minecraft:copper_ingot"},
+    "B": {"item": "homecore:homelink_circuit_board"}
+  },
+  "result": {"id": "homelink_quarry:quarry_ii", "count": 1}
+}

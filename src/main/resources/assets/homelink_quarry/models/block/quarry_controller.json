@@ -1,0 +1,159 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "homelink_quarry:block/quarry_steel",
+    "shell": "homelink_quarry:block/quarry_steel",
+    "frame": "homelink_quarry:block/quarry_steel_dark",
+    "copper": "homelink_quarry:block/quarry_copper",
+    "screen": "minecraft:block/black_concrete",
+    "shaft": "minecraft:block/iron_block",
+    "tier": "homelink_quarry:block/quarry_copper",
+    "bit": "minecraft:block/iron_block",
+    "dial": "minecraft:block/cyan_concrete"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        25,
+        225,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.72,
+        0.72,
+        0.72
+      ]
+    },
+    "ground": {
+      "translation": [
+        0,
+        3,
+        0
+      ],
+      "scale": [
+        0.45,
+        0.45,
+        0.45
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "scale": [
+        0.7,
+        0.7,
+        0.7
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        0,
+        2.5,
+        0
+      ],
+      "scale": [
+        0.4,
+        0.4,
+        0.4
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        0,
+        2.5,
+        0
+      ],
+      "scale": [
+        0.4,
+        0.4,
+        0.4
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "translation": [
+        0,
+        1,
+        0
+      ],
+      "scale": [
+        0.55,
+        0.55,
+        0.55
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        225,
+        0
+      ],
+      "translation": [
+        0,
+        1,
+        0
+      ],
+      "scale": [
+        0.55,
+        0.55,
+        0.55
+      ]
+    }
+  },
+  "elements": [
+    {"name": "foundation", "from": [0, 0, 0], "to": [16, 2, 16], "faces": {"down": {"texture": "#frame"}, "up": {"texture": "#frame"}, "north": {"texture": "#frame"}, "south": {"texture": "#frame"}, "west": {"texture": "#frame"}, "east": {"texture": "#frame"}}},
+    {"name": "lower_trim", "from": [0.5, 2, 0.5], "to": [15.5, 3, 15.5], "faces": {"down": {"texture": "#copper"}, "up": {"texture": "#copper"}, "north": {"texture": "#copper"}, "south": {"texture": "#copper"}, "west": {"texture": "#copper"}, "east": {"texture": "#copper"}}},
+    {"name": "enclosure", "from": [2, 3, 1], "to": [14, 13, 15], "faces": {"down": {"texture": "#shell"}, "up": {"texture": "#shell"}, "north": {"texture": "#shell"}, "south": {"texture": "#shell"}, "west": {"texture": "#shell"}, "east": {"texture": "#shell"}}},
+    {"name": "lid", "from": [1, 13, 1], "to": [15, 14, 15], "faces": {"down": {"texture": "#frame"}, "up": {"texture": "#frame"}, "north": {"texture": "#frame"}, "south": {"texture": "#frame"}, "west": {"texture": "#frame"}, "east": {"texture": "#frame"}}},
+    {"name": "service_hatch", "from": [4, 14, 4], "to": [12, 14.75, 12], "faces": {"down": {"texture": "#shell"}, "up": {"texture": "#shell"}, "north": {"texture": "#shell"}, "south": {"texture": "#shell"}, "west": {"texture": "#shell"}, "east": {"texture": "#shell"}}},
+    {"name": "hatch_latch", "from": [7, 14.75, 6], "to": [9, 15.5, 10], "faces": {"down": {"texture": "#copper"}, "up": {"texture": "#copper"}, "north": {"texture": "#copper"}, "south": {"texture": "#copper"}, "west": {"texture": "#copper"}, "east": {"texture": "#copper"}}},
+    {"name": "display_bezel", "from": [3, 6, 0.25], "to": [13, 12, 1], "faces": {"down": {"texture": "#frame"}, "up": {"texture": "#frame"}, "north": {"texture": "#frame"}, "south": {"texture": "#frame"}, "west": {"texture": "#frame"}, "east": {"texture": "#frame"}}},
+    {"name": "display_glass", "from": [3.75, 6.75, 0.18], "to": [12.25, 11.25, 0.25], "faces": {"down": {"texture": "#screen"}, "up": {"texture": "#screen"}, "north": {"texture": "#screen"}, "south": {"texture": "#screen"}, "west": {"texture": "#screen"}, "east": {"texture": "#screen"}}},
+    {"name": "display_scale", "from": [6, 7.5, 0.15], "to": [11.5, 7.75, 0.18], "faces": {"north": {"texture": "#copper"}}},
+    {"name": "display_readout", "from": [6, 8.25, 0.15], "to": [9.5, 8.75, 0.18], "faces": {"north": {"texture": "#dial"}}},
+    {"name": "control_left", "from": [4, 4, 0.25], "to": [5.5, 5.25, 1], "faces": {"down": {"texture": "#copper"}, "up": {"texture": "#copper"}, "north": {"texture": "#copper"}, "south": {"texture": "#copper"}, "west": {"texture": "#copper"}, "east": {"texture": "#copper"}}},
+    {"name": "control_right", "from": [6.25, 4, 0.25], "to": [7.75, 5.25, 1], "faces": {"down": {"texture": "#shaft"}, "up": {"texture": "#shaft"}, "north": {"texture": "#shaft"}, "south": {"texture": "#shaft"}, "west": {"texture": "#shaft"}, "east": {"texture": "#shaft"}}},
+    {"name": "output_socket", "from": [4.5, 5, 15], "to": [11.5, 11, 16], "faces": {"down": {"texture": "#copper"}, "up": {"texture": "#copper"}, "north": {"texture": "#copper"}, "south": {"texture": "#copper"}, "west": {"texture": "#copper"}, "east": {"texture": "#copper"}}},
+    {"name": "output_recess", "from": [6, 6.5, 16], "to": [10, 9.5, 16.02], "faces": {"south": {"texture": "#screen"}}},
+    {"name": "corner_post", "from": [0, 3, 0], "to": [2, 13, 2], "faces": {"down": {"texture": "#frame"}, "up": {"texture": "#frame"}, "north": {"texture": "#frame"}, "south": {"texture": "#frame"}, "west": {"texture": "#frame"}, "east": {"texture": "#frame"}}},
+    {"name": "corner_clamp", "from": [-0.125, 11, -0.125], "to": [2.125, 12, 2.125], "faces": {"down": {"texture": "#copper", "uv": [0.0, 13.75, 2.25, 16.0]}, "up": {"texture": "#copper", "uv": [0.0, 0.0, 2.25, 2.25]}, "north": {"texture": "#copper", "uv": [13.75, 4, 16.0, 5]}, "south": {"texture": "#copper", "uv": [0.0, 4, 2.25, 5]}, "west": {"texture": "#copper", "uv": [0.0, 4, 2.25, 5]}, "east": {"texture": "#copper", "uv": [13.75, 4, 16.0, 5]}}},
+    {"name": "front_fastener", "from": [0.5, 12, -0.02], "to": [1.5, 12.75, 0], "faces": {"north": {"texture": "#shaft"}}},
+    {"name": "corner_post", "from": [0, 3, 14], "to": [2, 13, 16], "faces": {"down": {"texture": "#frame"}, "up": {"texture": "#frame"}, "north": {"texture": "#frame"}, "south": {"texture": "#frame"}, "west": {"texture": "#frame"}, "east": {"texture": "#frame"}}},
+    {"name": "corner_clamp", "from": [-0.125, 11, 13.875], "to": [2.125, 12, 16.125], "faces": {"down": {"texture": "#copper", "uv": [0.0, 0.0, 2.25, 2.25]}, "up": {"texture": "#copper", "uv": [0.0, 13.75, 2.25, 16.0]}, "north": {"texture": "#copper", "uv": [13.75, 4, 16.0, 5]}, "south": {"texture": "#copper", "uv": [0.0, 4, 2.25, 5]}, "west": {"texture": "#copper", "uv": [13.75, 4, 16.0, 5]}, "east": {"texture": "#copper", "uv": [0.0, 4, 2.25, 5]}}},
+    {"name": "corner_post", "from": [14, 3, 0], "to": [16, 13, 2], "faces": {"down": {"texture": "#frame"}, "up": {"texture": "#frame"}, "north": {"texture": "#frame"}, "south": {"texture": "#frame"}, "west": {"texture": "#frame"}, "east": {"texture": "#frame"}}},
+    {"name": "corner_clamp", "from": [13.875, 11, -0.125], "to": [16.125, 12, 2.125], "faces": {"down": {"texture": "#copper", "uv": [13.75, 13.75, 16.0, 16.0]}, "up": {"texture": "#copper", "uv": [13.75, 0.0, 16.0, 2.25]}, "north": {"texture": "#copper", "uv": [0.0, 4, 2.25, 5]}, "south": {"texture": "#copper", "uv": [13.75, 4, 16.0, 5]}, "west": {"texture": "#copper", "uv": [0.0, 4, 2.25, 5]}, "east": {"texture": "#copper", "uv": [13.75, 4, 16.0, 5]}}},
+    {"name": "front_fastener", "from": [14.5, 12, -0.02], "to": [15.5, 12.75, 0], "faces": {"north": {"texture": "#shaft"}}},
+    {"name": "corner_post", "from": [14, 3, 14], "to": [16, 13, 16], "faces": {"down": {"texture": "#frame"}, "up": {"texture": "#frame"}, "north": {"texture": "#frame"}, "south": {"texture": "#frame"}, "west": {"texture": "#frame"}, "east": {"texture": "#frame"}}},
+    {"name": "corner_clamp", "from": [13.875, 11, 13.875], "to": [16.125, 12, 16.125], "faces": {"down": {"texture": "#copper", "uv": [13.75, 0.0, 16.0, 2.25]}, "up": {"texture": "#copper", "uv": [13.75, 13.75, 16.0, 16.0]}, "north": {"texture": "#copper", "uv": [0.0, 4, 2.25, 5]}, "south": {"texture": "#copper", "uv": [13.75, 4, 16.0, 5]}, "west": {"texture": "#copper", "uv": [13.75, 4, 16.0, 5]}, "east": {"texture": "#copper", "uv": [0.0, 4, 2.25, 5]}}},
+    {"name": "vent_recess", "from": [1.75, 5, 4], "to": [2.0, 11, 12], "faces": {"down": {"texture": "#frame"}, "up": {"texture": "#frame"}, "north": {"texture": "#frame"}, "south": {"texture": "#frame"}, "west": {"texture": "#frame"}, "east": {"texture": "#frame"}}},
+    {"name": "vent_louvre", "from": [1.6, 6, 4.5], "to": [2.15, 6.5, 11.5], "faces": {"down": {"texture": "#shell"}, "up": {"texture": "#shell"}, "north": {"texture": "#shell"}, "south": {"texture": "#shell"}, "west": {"texture": "#shell"}, "east": {"texture": "#shell"}}},
+    {"name": "vent_louvre", "from": [1.6, 8, 4.5], "to": [2.15, 8.5, 11.5], "faces": {"down": {"texture": "#shell"}, "up": {"texture": "#shell"}, "north": {"texture": "#shell"}, "south": {"texture": "#shell"}, "west": {"texture": "#shell"}, "east": {"texture": "#shell"}}},
+    {"name": "vent_louvre", "from": [1.6, 10, 4.5], "to": [2.15, 10.5, 11.5], "faces": {"down": {"texture": "#shell"}, "up": {"texture": "#shell"}, "north": {"texture": "#shell"}, "south": {"texture": "#shell"}, "west": {"texture": "#shell"}, "east": {"texture": "#shell"}}},
+    {"name": "vent_recess", "from": [14, 5, 4], "to": [14.25, 11, 12], "faces": {"down": {"texture": "#frame"}, "up": {"texture": "#frame"}, "north": {"texture": "#frame"}, "south": {"texture": "#frame"}, "west": {"texture": "#frame"}, "east": {"texture": "#frame"}}},
+    {"name": "vent_louvre", "from": [13.85, 6, 4.5], "to": [14.4, 6.5, 11.5], "faces": {"down": {"texture": "#shell"}, "up": {"texture": "#shell"}, "north": {"texture": "#shell"}, "south": {"texture": "#shell"}, "west": {"texture": "#shell"}, "east": {"texture": "#shell"}}},
+    {"name": "vent_louvre", "from": [13.85, 8, 4.5], "to": [14.4, 8.5, 11.5], "faces": {"down": {"texture": "#shell"}, "up": {"texture": "#shell"}, "north": {"texture": "#shell"}, "south": {"texture": "#shell"}, "west": {"texture": "#shell"}, "east": {"texture": "#shell"}}},
+    {"name": "vent_louvre", "from": [13.85, 10, 4.5], "to": [14.4, 10.5, 11.5], "faces": {"down": {"texture": "#shell"}, "up": {"texture": "#shell"}, "north": {"texture": "#shell"}, "south": {"texture": "#shell"}, "west": {"texture": "#shell"}, "east": {"texture": "#shell"}}}
+  ]
+}

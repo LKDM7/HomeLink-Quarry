@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "IPI",
+    "CBC",
+    "RHR"
+  ],
+  "key": {
+    "I": {"item": "minecraft:iron_ingot"},
+    "P": {"item": "minecraft:piston"},
+    "C": {"item": "minecraft:copper_ingot"},
+    "B": {"item": "homecore:homelink_circuit_board"},
+    "R": {"item": "minecraft:redstone"},
+    "H": {"item": "minecraft:chest"}
+  },
+  "result": {"id": "homelink_quarry:quarry_i", "count": 1}
+}

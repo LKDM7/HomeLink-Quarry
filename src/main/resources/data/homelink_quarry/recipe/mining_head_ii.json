@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["DMD", "CHC", " I "],
+  "key": {
+    "D": {"item": "minecraft:diamond"},
+    "M": {"item": "homecore:homelink_microprocessor"},
+    "C": {"item": "minecraft:copper_ingot"},
+    "H": {"item": "homelink_quarry:mining_head_i"},
+    "I": {"item": "minecraft:iron_ingot"}
+  },
+  "result": {"id": "homelink_quarry:mining_head_ii", "count": 1}
+}

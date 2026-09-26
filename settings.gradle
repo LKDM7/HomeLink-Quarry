@@ -1,0 +1,40 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        gradlePluginPortal()
+        maven { url = 'https://maven.neoforged.net/releases' }
+    }
+}
+
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
+}
+
+rootProject.name = 'HomeLink-Quarry'
+def homecoreDir = file(providers.gradleProperty('homecore_dir').getOrElse('../HomeCore'))
+if (!new File(homecoreDir, 'settings.gradle').isFile()) {
+    throw new GradleException('Clone https://github.com/LKDM7/HomeCore next to this project or set -Phomecore_dir=<checkout>.')
+}
+def homecoreProperties = new Properties()
+new File(homecoreDir, 'gradle.properties').withInputStream { homecoreProperties.load(it) }
+def expectedHomecore = providers.gradleProperty('homecore_version').get()
+if (homecoreProperties.getProperty('mod_version') != expectedHomecore || homecoreProperties.getProperty('minecraft_version') != '1.21.1') {
+    throw new GradleException("HomeCore checkout must target Minecraft 1.21.1 and version ${expectedHomecore}.")
+}
+includeBuild(homecoreDir) {
+    dependencySubstitution {
+        substitute module('fr.lkdm.homecore:homecore') using project(':')
+    }
+}
+// HomeLink Storage is an optional, real integration-test partner (Storage Deposit), never a dependency.
+if (providers.gradleProperty('withStorage').isPresent()) {
+    def storageDir = file(providers.gradleProperty('storage_dir').getOrElse('../HomeLink Storage'))
+    if (!new File(storageDir, 'settings.gradle').isFile()) {
+        throw new GradleException('Clone HomeLink Storage next to this project or set -Pstorage_dir=<checkout>.')
+    }
+    includeBuild(storageDir) {
+        dependencySubstitution {
+            substitute module('fr.lkdm.homelink.storage:homelink_storage') using project(':')
+        }
+    }
+}

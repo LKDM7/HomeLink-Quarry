@@ -1,0 +1,141 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'idea'
+    id 'net.neoforged.moddev' version '2.0.147'
+}
+version = mod_version
+group = mod_group_id
+base { archivesName = mod_id }
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+repositories {
+    mavenCentral()
+}
+def withStorage = providers.gradleProperty('withStorage').isPresent()
+dependencies {
+    implementation "fr.lkdm.homecore:homecore:${homecore_version}"
+    // Only for the in-game check against a real Storage Deposit; never part of the release metadata.
+    if (withStorage) runtimeOnly "fr.lkdm.homelink.storage:homelink_storage:1.0.0"
+}
+// Development-only GameTests, shipped as a separate mod that never enters the release JAR.
+sourceSets {
+    verification {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+configurations {
+    verificationImplementation.extendsFrom implementation
+    verificationRuntimeOnly.extendsFrom runtimeOnly
+    verificationCompileOnly.extendsFrom compileOnly
+}
+neoForge {
+    version = project.neo_version
+    addModdingDependenciesTo sourceSets.verification
+    mods {
+        "${mod_id}" { sourceSet sourceSets.main }
+        quarry_validation { sourceSet sourceSets.verification }
+    }
+    runs {
+        client { client(); loadedMods = [mods.homelink_quarry] }
+        server { server(); programArgument '--nogui'; loadedMods = [mods.homelink_quarry] }
+        smoke {
+            client()
+            systemProperty 'quarry.smoke', 'true'
+            systemProperty 'quarry.withStorage', withStorage.toString()
+            programArguments.addAll('--width', '1280', '--height', '720')
+            loadedMods = [mods.homelink_quarry, mods.quarry_validation]
+            gameDirectory = file('build/validation/client')
+        }
+        gameTestServer {
+            type = 'gameTestServer'
+            loadedMods = [mods.homelink_quarry, mods.quarry_validation]
+            gameDirectory = file('build/validation/gametest')
+            systemProperty 'neoforge.enabledGameTestNamespaces', 'quarry_validation'
+        }
+        configureEach { logLevel = org.slf4j.event.Level.INFO }
+    }
+}
+def gameTestProperties = layout.buildDirectory.file('validation/gametest/server.properties')
+tasks.named('runGameTestServer') {
+    doFirst {
+        def config = gameTestProperties.get().asFile
+        if (!config.exists()) { config.parentFile.mkdirs(); config.setText('', 'UTF-8') }
+    }
+}
+def smokeOptions = layout.buildDirectory.file('validation/client/options.txt')
+def smokeLog = layout.buildDirectory.file('validation/client/logs/latest.log')
+def smokeLanguage = providers.gradleProperty('smokeLanguage').getOrElse('fr_fr')
+tasks.named('runSmoke') {
+    doFirst {
+        def options = smokeOptions.get().asFile
+        options.parentFile.mkdirs()
+        options.setText("onboardAccessibility:false\ntutorialStep:none\npauseOnLostFocus:false\nrenderDistance:6\nsimulationDistance:5\nmaxFps:60\nguiScale:2\nlang:${smokeLanguage}\n", 'UTF-8')
+    }
+    doLast {
+        def log = smokeLog.get().asFile.getText('UTF-8')
+        def markers = ['QUARRY_SMOKE_OK', 'QUARRY_FOUNDATION_CLIENT_OK', 'QUARRY_AREA_CLIENT_OK', 'QUARRY_FUEL_CLIENT_OK',
+                       'QUARRY_MINING_CLIENT_OK', 'QUARRY_INTERFACE_RESTART_CLIENT_OK', 'QUARRY_PREVIEW_CLIENT_OK',
+                       'QUARRY_PORT_CLIENT_OK', 'QUARRY_HOMECORE_CLIENT_OK']
+        if (withStorage) markers += 'QUARRY_PORT_CLIENT_OK storage=true'
+        if (markers.any { !log.contains(it) } || log.contains('QUARRY_SMOKE_FAILED')) {
+            throw new GradleException('In-game verification failed: inspect build/validation/client/logs/latest.log')
+        }
+    }
+}
+def generateModMetadata =tasks.register('generateModMetadata', ProcessResources) {
+    def values = ['minecraft_version_range', 'neo_version_range', 'loader_version_range',
+                  'mod_id', 'mod_name', 'mod_license', 'mod_version', 'mod_authors', 'mod_description', 'homecore_version_range']
+            .collectEntries { [(it): project.property(it)] }
+    inputs.properties values
+    expand values
+    from 'src/main/templates'
+    into layout.buildDirectory.dir('generated/sources/modMetadata')
+}
+sourceSets.main.resources.srcDir generateModMetadata
+neoForge.ideSyncTask generateModMetadata
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8'; options.release = 21 }
+tasks.withType(Jar).configureEach {
+    from('LICENSE') { into 'META-INF' }
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
+tasks.named('check') { dependsOn tasks.named('verificationClasses') }
+def releaseJar = tasks.named('jar', Jar).flatMap { it.archiveFile }
+tasks.register('verifyReleaseJar') {
+    dependsOn tasks.named('jar')
+    inputs.file releaseJar
+    doLast {
+        def archive = new java.util.zip.ZipFile(releaseJar.get().asFile)
+        try {
+            def names = archive.entries().collect { it.name }
+            if (names.any { it.startsWith('fr/lkdm/homecore/') || it.startsWith('fr/lkdm/homelink/storage/')
+                    || it.startsWith('fr/lkdm/homelink/quarry/verification/') || it.startsWith('data/quarry_validation/') }) {
+                throw new GradleException('Dependency or validation classes must not be embedded in Quarry.')
+            }
+            for (def path : ['fr/lkdm/homelink/quarry/HomeLinkQuarry.class', 'META-INF/neoforge.mods.toml',
+                              'assets/homelink_quarry/blockstates/quarry_i.json',
+                              'data/homelink_quarry/recipe/quarry_iii.json',
+                              'assets/homelink_quarry/lang/en_us.json', 'assets/homelink_quarry/lang/fr_fr.json',
+                              'data/homelink_quarry/tags/block/item_inputs.json', 'data/homelink_quarry/tags/block/quarry_blacklist.json',
+                              'fr/lkdm/homelink/quarry/homelink/QuarryDevice.class', 'META-INF/LICENSE']) {
+                if (!names.contains(path)) throw new GradleException("Missing JAR entry: ${path}")
+            }
+            def metadata = archive.getInputStream(archive.getEntry('META-INF/neoforge.mods.toml')).withCloseable { it.getText('UTF-8') }
+            if (!metadata.contains('modId="homecore"') || metadata.contains('${')) throw new GradleException('Invalid HomeCore dependency metadata.')
+        } finally { archive.close() }
+    }
+}
+tasks.named('check') { dependsOn tasks.named('verifyReleaseJar') }
+
+def homecoreJarName = "homecore-${homecore_version}.jar"
+tasks.register('releaseBundle', Sync) {
+    group = 'build'
+    description = 'Collects the release mod and its required HomeCore dependency, with installation docs.'
+    dependsOn tasks.named('build')
+    into layout.buildDirectory.dir('release')
+    from(releaseJar)
+    from(configurations.runtimeClasspath.filter { it.name == homecoreJarName })
+    from('README.md', 'CHANGELOG.md', 'LICENSE')
+    from('docs') { into 'docs' }
+}

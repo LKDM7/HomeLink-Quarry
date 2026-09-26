@@ -1,0 +1,21 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "homelink_quarry:block/quarry_steel",
+    "shell": "homelink_quarry:block/quarry_steel",
+    "frame": "homelink_quarry:block/quarry_steel_dark",
+    "copper": "homelink_quarry:block/quarry_copper",
+    "screen": "minecraft:block/black_concrete",
+    "shaft": "minecraft:block/iron_block",
+    "tier": "homelink_quarry:block/quarry_copper",
+    "bit": "minecraft:block/iron_block",
+    "dial": "minecraft:block/cyan_concrete"
+  },
+  "elements": [
+    {"name": "spindle", "from": [6.5, 2, 6.5], "to": [9.5, 8.5, 9.5], "faces": {"up": {"texture": "#shaft"}, "north": {"texture": "#shaft"}, "south": {"texture": "#shaft"}, "west": {"texture": "#shaft"}, "east": {"texture": "#shaft"}}},
+    {"name": "cutting_flight_0", "from": [4.5, 6, 4.5], "to": [11.5, 7.5, 11.5], "faces": {"down": {"texture": "#bit"}, "up": {"texture": "#bit"}, "north": {"texture": "#bit"}, "south": {"texture": "#bit"}, "west": {"texture": "#bit"}, "east": {"texture": "#bit"}}, "rotation": {"origin": [8, 8, 8], "axis": "y", "angle": 0}},
+    {"name": "cutting_flight_1", "from": [5.0, 4, 5.0], "to": [11.0, 5.5, 11.0], "faces": {"down": {"texture": "#bit"}, "up": {"texture": "#bit"}, "north": {"texture": "#bit"}, "south": {"texture": "#bit"}, "west": {"texture": "#bit"}, "east": {"texture": "#bit"}}, "rotation": {"origin": [8, 8, 8], "axis": "y", "angle": 22.5}},
+    {"name": "cutting_flight_2", "from": [5.75, 2, 5.75], "to": [10.25, 3.5, 10.25], "faces": {"down": {"texture": "#bit"}, "up": {"texture": "#bit"}, "north": {"texture": "#bit"}, "south": {"texture": "#bit"}, "west": {"texture": "#bit"}, "east": {"texture": "#bit"}}, "rotation": {"origin": [8, 8, 8], "axis": "y", "angle": 45}},
+    {"name": "cutting_flight_3", "from": [6.75, 0, 6.75], "to": [9.25, 1.5, 9.25], "faces": {"down": {"texture": "#bit"}, "up": {"texture": "#bit"}, "north": {"texture": "#bit"}, "south": {"texture": "#bit"}, "west": {"texture": "#bit"}, "east": {"texture": "#bit"}}, "rotation": {"origin": [8, 8, 8], "axis": "y", "angle": -22.5}}
+  ]
+}

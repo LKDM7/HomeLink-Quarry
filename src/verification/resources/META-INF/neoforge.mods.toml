@@ -1,0 +1,13 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved"
+[[mods]]
+modId="quarry_validation"
+version="1.0.0"
+displayName="HomeLink Quarry Development Verification"
+[[dependencies.quarry_validation]]
+modId="homelink_quarry"
+type="required"
+versionRange="[0,)"
+ordering="AFTER"
+side="BOTH"

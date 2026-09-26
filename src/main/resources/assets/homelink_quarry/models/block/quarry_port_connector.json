@@ -1,0 +1,20 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "homelink_quarry:block/quarry_steel",
+    "shell": "homelink_quarry:block/quarry_steel",
+    "frame": "homelink_quarry:block/quarry_steel_dark",
+    "copper": "homelink_quarry:block/quarry_copper",
+    "screen": "minecraft:block/black_concrete",
+    "shaft": "minecraft:block/iron_block",
+    "tier": "homelink_quarry:block/quarry_copper",
+    "bit": "minecraft:block/iron_block",
+    "dial": "minecraft:block/cyan_concrete"
+  },
+  "elements": [
+    {"name": "sleeve", "from": [6, 6.5, 16], "to": [10, 9.5, 17], "faces": {"down": {"texture": "#copper", "uv": [6, 0, 10, 1]}, "up": {"texture": "#copper", "uv": [6, 15, 10, 16]}, "north": {"texture": "#copper"}, "south": {"texture": "#copper"}, "west": {"texture": "#copper", "uv": [15, 6.5, 16, 9.5]}, "east": {"texture": "#copper", "uv": [0, 6.5, 1, 9.5]}}},
+    {"name": "collar", "from": [5.5, 6, 16.4], "to": [10.5, 10, 16.9], "faces": {"down": {"texture": "#frame", "uv": [5.5, 0.0, 10.5, 0.5]}, "up": {"texture": "#frame", "uv": [5.5, 15.5, 10.5, 16.0]}, "north": {"texture": "#frame"}, "south": {"texture": "#frame"}, "west": {"texture": "#frame", "uv": [15.5, 6, 16.0, 10]}, "east": {"texture": "#frame", "uv": [0.0, 6, 0.5, 10]}}},
+    {"name": "conduit", "from": [6.75, 15, 13.5], "to": [9.25, 15.75, 18], "faces": {"down": {"texture": "#copper", "uv": [6.75, 0, 9.25, 4.5]}, "up": {"texture": "#copper", "uv": [6.75, 11.5, 9.25, 16]}, "north": {"texture": "#copper"}, "south": {"texture": "#copper"}, "west": {"texture": "#copper", "uv": [11.5, 0.25, 16, 1]}, "east": {"texture": "#copper", "uv": [0, 0.25, 4.5, 1]}}},
+    {"name": "conduit_clip", "from": [6.25, 14.9375, 15.5], "to": [9.75, 16, 16.5], "faces": {"down": {"texture": "#frame", "uv": [6.25, 0.0, 9.75, 1.0]}, "up": {"texture": "#frame", "uv": [6.25, 15.0, 9.75, 16.0]}, "north": {"texture": "#frame"}, "south": {"texture": "#frame"}, "west": {"texture": "#frame", "uv": [15.0, 0, 16.0, 1.0625]}, "east": {"texture": "#frame", "uv": [0.0, 0, 1.0, 1.0625]}}}
+  ]
+}

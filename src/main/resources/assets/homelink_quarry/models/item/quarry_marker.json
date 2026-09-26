@@ -1,0 +1,135 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "homelink_quarry:block/quarry_steel",
+    "shell": "homelink_quarry:block/quarry_steel",
+    "frame": "homelink_quarry:block/quarry_steel_dark",
+    "copper": "homelink_quarry:block/quarry_copper",
+    "screen": "minecraft:block/black_concrete",
+    "shaft": "minecraft:block/iron_block",
+    "tier": "minecraft:block/redstone_block",
+    "bit": "minecraft:block/iron_block",
+    "dial": "minecraft:block/cyan_concrete"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        25,
+        225,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.72,
+        0.72,
+        0.72
+      ]
+    },
+    "ground": {
+      "translation": [
+        0,
+        3,
+        0
+      ],
+      "scale": [
+        0.45,
+        0.45,
+        0.45
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        180,
+        0
+      ],
+      "scale": [
+        0.7,
+        0.7,
+        0.7
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        0,
+        2.5,
+        0
+      ],
+      "scale": [
+        0.4,
+        0.4,
+        0.4
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        0,
+        2.5,
+        0
+      ],
+      "scale": [
+        0.4,
+        0.4,
+        0.4
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "translation": [
+        0,
+        1,
+        0
+      ],
+      "scale": [
+        0.55,
+        0.55,
+        0.55
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        225,
+        0
+      ],
+      "translation": [
+        0,
+        1,
+        0
+      ],
+      "scale": [
+        0.55,
+        0.55,
+        0.55
+      ]
+    }
+  },
+  "elements": [
+    {"name": "grip", "from": [7, 1, 7], "to": [9, 9, 9], "faces": {"down": {"texture": "#frame"}, "up": {"texture": "#frame"}, "north": {"texture": "#frame"}, "south": {"texture": "#frame"}, "west": {"texture": "#frame"}, "east": {"texture": "#frame"}}},
+    {"name": "end_cap", "from": [6.5, 0, 6.5], "to": [9.5, 1.5, 9.5], "faces": {"down": {"texture": "#copper"}, "up": {"texture": "#copper"}, "north": {"texture": "#copper"}, "south": {"texture": "#copper"}, "west": {"texture": "#copper"}, "east": {"texture": "#copper"}}},
+    {"name": "sensor_collar", "from": [6, 9, 6], "to": [10, 11, 10], "faces": {"down": {"texture": "#copper"}, "up": {"texture": "#copper"}, "north": {"texture": "#copper"}, "south": {"texture": "#copper"}, "west": {"texture": "#copper"}, "east": {"texture": "#copper"}}},
+    {"name": "sensor", "from": [6.5, 11, 6.5], "to": [9.5, 14, 9.5], "faces": {"down": {"texture": "#shaft"}, "up": {"texture": "#shaft"}, "north": {"texture": "#shaft"}, "south": {"texture": "#shaft"}, "west": {"texture": "#shaft"}, "east": {"texture": "#shaft"}}},
+    {"name": "sensor_tip", "from": [7, 14, 7], "to": [9, 16, 9], "faces": {"down": {"texture": "#tier"}, "up": {"texture": "#tier"}, "north": {"texture": "#tier"}, "south": {"texture": "#tier"}, "west": {"texture": "#tier"}, "east": {"texture": "#tier"}}},
+    {"name": "grip_ring", "from": [6.75, 3, 6.75], "to": [9.25, 3.5, 9.25], "faces": {"down": {"texture": "#copper"}, "up": {"texture": "#copper"}, "north": {"texture": "#copper"}, "south": {"texture": "#copper"}, "west": {"texture": "#copper"}, "east": {"texture": "#copper"}}},
+    {"name": "grip_ring", "from": [6.75, 5, 6.75], "to": [9.25, 5.5, 9.25], "faces": {"down": {"texture": "#copper"}, "up": {"texture": "#copper"}, "north": {"texture": "#copper"}, "south": {"texture": "#copper"}, "west": {"texture": "#copper"}, "east": {"texture": "#copper"}}},
+    {"name": "grip_ring", "from": [6.75, 7, 6.75], "to": [9.25, 7.5, 9.25], "faces": {"down": {"texture": "#copper"}, "up": {"texture": "#copper"}, "north": {"texture": "#copper"}, "south": {"texture": "#copper"}, "west": {"texture": "#copper"}, "east": {"texture": "#copper"}}}
+  ]
+}

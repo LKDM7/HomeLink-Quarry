@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["DMD", "NHN", " D "],
+  "key": {
+    "D": {"item": "minecraft:diamond"},
+    "M": {"item": "homecore:homelink_microprocessor"},
+    "N": {"item": "minecraft:netherite_ingot"},
+    "H": {"item": "homelink_quarry:mining_head_ii"}
+  },
+  "result": {"id": "homelink_quarry:mining_head_iii", "count": 1}
+}

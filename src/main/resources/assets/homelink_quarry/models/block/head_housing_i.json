@@ -1,0 +1,23 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "homelink_quarry:block/quarry_steel",
+    "shell": "homelink_quarry:block/quarry_steel",
+    "frame": "homelink_quarry:block/quarry_steel_dark",
+    "copper": "homelink_quarry:block/quarry_copper",
+    "screen": "minecraft:block/black_concrete",
+    "shaft": "minecraft:block/iron_block",
+    "tier": "homelink_quarry:block/quarry_copper",
+    "bit": "minecraft:block/iron_block",
+    "dial": "minecraft:block/cyan_concrete"
+  },
+  "elements": [
+    {"name": "upper_bearing", "from": [5, 14, 5], "to": [11, 16, 11], "faces": {"down": {"texture": "#frame"}, "up": {"texture": "#frame"}, "north": {"texture": "#frame"}, "south": {"texture": "#frame"}, "west": {"texture": "#frame"}, "east": {"texture": "#frame"}}},
+    {"name": "motor_body", "from": [4, 9, 4], "to": [12, 14, 12], "faces": {"down": {"texture": "#copper"}, "up": {"texture": "#copper"}, "north": {"texture": "#copper"}, "south": {"texture": "#copper"}, "west": {"texture": "#copper"}, "east": {"texture": "#copper"}}},
+    {"name": "lower_bearing", "from": [3.875, 8, 3.875], "to": [12.125, 9.5, 12.125], "faces": {"down": {"texture": "#frame"}, "up": {"texture": "#frame"}, "north": {"texture": "#frame"}, "south": {"texture": "#frame"}, "west": {"texture": "#frame"}, "east": {"texture": "#frame"}}},
+    {"name": "motor_band", "from": [3.75, 10, 3.75], "to": [12.25, 11, 12.25], "faces": {"down": {"texture": "#shell"}, "up": {"texture": "#shell"}, "north": {"texture": "#shell"}, "south": {"texture": "#shell"}, "west": {"texture": "#shell"}, "east": {"texture": "#shell"}}},
+    {"name": "cooling_fin", "from": [3.5, 9.75, 5], "to": [4.25, 13.5, 11], "faces": {"down": {"texture": "#frame"}, "up": {"texture": "#frame"}, "north": {"texture": "#frame"}, "south": {"texture": "#frame"}, "west": {"texture": "#frame"}, "east": {"texture": "#frame"}}},
+    {"name": "cooling_fin", "from": [11.75, 9.75, 5], "to": [12.5, 13.5, 11], "faces": {"down": {"texture": "#frame"}, "up": {"texture": "#frame"}, "north": {"texture": "#frame"}, "south": {"texture": "#frame"}, "west": {"texture": "#frame"}, "east": {"texture": "#frame"}}},
+    {"name": "head_grade", "from": [7.625, 12.5, 3.9], "to": [8.375, 13.5, 4], "faces": {"north": {"texture": "#shaft"}}}
+  ]
+}
