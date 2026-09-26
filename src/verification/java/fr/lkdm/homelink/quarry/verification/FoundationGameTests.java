@@ -15,6 +15,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.block.Block;
@@ -59,10 +60,11 @@ public final class FoundationGameTests {
         Recipe<?> second = recipe(helper, "quarry_ii");
         Recipe<?> third = recipe(helper, "quarry_iii");
         check(helper, uses(first, HomeCoreItems.HOMELINK_CIRCUIT_BOARD.get()), "Quarry I must use the HomeLink Circuit Board");
-        check(helper, uses(second, QuarryRegistries.QUARRY_I_ITEM.get()) && uses(second, HomeCoreItems.HOMELINK_MICROPROCESSOR.get()),
-                "Quarry II must upgrade Quarry I with a Microprocessor");
-        check(helper, uses(third, QuarryRegistries.QUARRY_II_ITEM.get()) && count(third, HomeCoreItems.HOMELINK_MICROPROCESSOR.get()) >= 2,
-                "Quarry III must upgrade Quarry II with several Microprocessors");
+        check(helper, uses(second, QuarryRegistries.QUARRY_I_ITEM.get()) && uses(second, HomeCoreItems.HOMELINK_CONTROL_MODULE.get())
+                && uses(second, HomeCoreItems.HOMELINK_CIRCUIT_BOARD.get()), "Quarry II must upgrade Quarry I with a Control Module");
+        check(helper, uses(third, QuarryRegistries.QUARRY_II_ITEM.get()) && uses(third, HomeCoreItems.HOMELINK_CONTROL_MODULE.get())
+                && uses(third, HomeCoreItems.HOMELINK_COMMUNICATION_MODULE.get()) && uses(third, Items.NETHERITE_INGOT),
+                "Quarry III must upgrade Quarry II with Control and Communication Modules");
         ItemStack result = third.getResultItem(helper.getLevel().registryAccess());
         check(helper, result.is(QuarryRegistries.QUARRY_III_ITEM.get()), "Quarry III recipe result");
         helper.succeed();
@@ -84,8 +86,8 @@ public final class FoundationGameTests {
         return holder.get().value();
     }
 
-    private static boolean uses(Recipe<?> recipe, Item item) {
-        return count(recipe, item) > 0;
+    private static boolean uses(Recipe<?> recipe, net.minecraft.world.level.ItemLike item) {
+        return count(recipe, item.asItem()) > 0;
     }
 
     private static long count(Recipe<?> recipe, Item item) {

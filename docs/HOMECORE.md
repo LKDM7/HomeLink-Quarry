@@ -1,6 +1,6 @@
 # HomeLink Quarry et HomeCore
 
-HomeLink Quarry n'utilise que l'API publique `fr.lkdm.homecore.api` de HomeCore 1.6.1
+HomeLink Quarry n'utilise que l'API publique `fr.lkdm.homecore.api` de HomeCore 1.7.0
 (API 1.3.0) et ne recrée aucune classe HomeCore.
 
 ## Appareil
@@ -63,7 +63,7 @@ rediffusion). `fuel_low` part une fois quand le carburant passe sous `quarryFuel
 
 ## Port de sortie
 
-HomeCore 1.6.1 ne possède pas d'API de ports. Aucune n'a été ajoutée : le port ITEM_OUTPUT
+HomeCore 1.7.0 ne possède pas d'API de ports. Aucune n'a été ajoutée : le port ITEM_OUTPUT
 utilise la capability standard NeoForge `Capabilities.ItemHandler.BLOCK`, atteinte par la face
 que l'entrée présente à la Quarry, et le tag `homelink_quarry:item_inputs` décide quelles
 entrées sont compatibles — la même convention que la station FarmBot de HomeLink Farm.

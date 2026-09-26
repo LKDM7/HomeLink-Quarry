@@ -8,7 +8,7 @@
   ],
   "key": {
     "D": {"item": "minecraft:diamond"},
-    "M": {"item": "homecore:homelink_microprocessor"},
+    "M": {"item": "homecore:homelink_control_module"},
     "G": {"item": "minecraft:gold_ingot"},
     "Q": {"item": "homelink_quarry:quarry_i"},
     "C": {"item": "minecraft:copper_ingot"},

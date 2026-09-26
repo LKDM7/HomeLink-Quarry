@@ -1,6 +1,6 @@
 # HomeLink Quarry 1.0.0
 
-Minecraft 1.21.1 · NeoForge 21.1.251 · Java 21 · HomeCore 1.6.1.
+Minecraft 1.21.1 · NeoForge 21.1.251 · Java 21 · HomeCore 1.7.0.
 
 HomeLink Quarry ajoute une carrière physique : une Tête de forage visible se déplace
 au-dessus de la zone et mine **un bloc à la fois**, couche par couche, du Départ Y
@@ -23,7 +23,7 @@ Des repères I / II / III en relief permettent aussi de reconnaître chaque nive
 
 ## Installation
 
-Installer `homelink_quarry-1.0.0.jar` et `homecore-1.6.1.jar` dans le dossier `mods`
+Installer `homelink_quarry-1.0.0.jar` et `homecore-1.7.0.jar` dans le dossier `mods`
 du client et du serveur NeoForge. HomeLink Storage est facultatif.
 
 ## Prise en main
@@ -87,12 +87,17 @@ Détails : [docs/HOMECORE.md](docs/HOMECORE.md).
 | Objet | Ingrédients |
 |---|---|
 | Quarry I | Fer ×2, Piston, Cuivre ×2, HomeLink Circuit Board, Redstone ×2, Coffre |
-| Quarry II | **Quarry I**, Diamant ×2, HomeLink Microprocessor, Or ×2, Cuivre ×2, Circuit Board |
-| Quarry III | **Quarry II**, Netherite ×2, Microprocessor ×2, Bloc de redstone ×2, Diamant ×2 |
+| Quarry II | **Quarry I**, Diamant ×2, HomeLink Control Module, Or ×2, Cuivre ×2, Circuit Board |
+| Quarry III | **Quarry II**, Netherite ×2, HomeLink Communication Module, HomeLink Control Module, Diamant ×2, Bloc de redstone ×2 |
 | Tête I | Fer ×3, Redstone, Cuivre ×2, Circuit Board |
-| Tête II | **Tête I**, Diamant ×2, Microprocessor, Cuivre ×2, Fer |
-| Tête III | **Tête II**, Diamant ×3, Microprocessor, Netherite ×2 |
+| Tête II | **Tête I**, Diamant ×2, Control Module, Cuivre ×2, Fer |
+| Tête III | **Tête II**, Diamant ×3, Control Module, Netherite ×2 |
 | Marqueur | Redstone, Cuivre, Bâton |
+
+Les modules et composants HomeLink (Circuit Board, Microprocessor, Control Module,
+Communication Module) se fabriquent à l'établi électronique de HomeCore. Le Control Module
+équipe les machines automatisées (Quarry II/III, Têtes II/III) ; le Communication Module
+relie la Quarry III au réseau HomeLink.
 
 ## Configuration
 
@@ -103,7 +108,7 @@ par tick au plus), `quarryTransferInterval` (20 ticks), `quarryFuelLowThreshold`
 
 ## Construire et vérifier
 
-Cloner HomeCore à côté de ce projet (`../HomeCore`, version 1.6.1), puis :
+Cloner HomeCore à côté de ce projet (`../HomeCore`, version 1.7.0), puis :
 
 ```powershell
 ./gradlew.bat build              # compilation + vérification du JAR publié

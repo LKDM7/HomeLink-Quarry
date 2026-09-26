@@ -4,7 +4,7 @@
   "pattern": ["DMD", "CHC", " I "],
   "key": {
     "D": {"item": "minecraft:diamond"},
-    "M": {"item": "homecore:homelink_microprocessor"},
+    "M": {"item": "homecore:homelink_control_module"},
     "C": {"item": "minecraft:copper_ingot"},
     "H": {"item": "homelink_quarry:mining_head_i"},
     "I": {"item": "minecraft:iron_ingot"}

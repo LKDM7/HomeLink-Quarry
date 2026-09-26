@@ -2,16 +2,17 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "NMN",
-    "RQR",
-    "DMD"
+    "NTN",
+    "DQD",
+    "RKR"
   ],
   "key": {
     "N": {"item": "minecraft:netherite_ingot"},
-    "M": {"item": "homecore:homelink_microprocessor"},
-    "R": {"item": "minecraft:redstone_block"},
+    "T": {"item": "homecore:homelink_communication_module"},
+    "D": {"item": "minecraft:diamond"},
     "Q": {"item": "homelink_quarry:quarry_ii"},
-    "D": {"item": "minecraft:diamond"}
+    "R": {"item": "minecraft:redstone_block"},
+    "K": {"item": "homecore:homelink_control_module"}
   },
   "result": {"id": "homelink_quarry:quarry_iii", "count": 1}
 }

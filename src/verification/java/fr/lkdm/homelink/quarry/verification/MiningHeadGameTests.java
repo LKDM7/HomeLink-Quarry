@@ -83,11 +83,11 @@ public final class MiningHeadGameTests {
     public static void headRecipesAreProgressive(GameTestHelper helper) {
         check(helper, uses(helper, "mining_head_i", new ItemStack(HomeCoreItems.HOMELINK_CIRCUIT_BOARD.get())), "Head I needs a Circuit Board");
         check(helper, uses(helper, "mining_head_ii", new ItemStack(QuarryRegistries.MINING_HEAD_I.get()))
-                && uses(helper, "mining_head_ii", new ItemStack(HomeCoreItems.HOMELINK_MICROPROCESSOR.get()))
+                && uses(helper, "mining_head_ii", new ItemStack(HomeCoreItems.HOMELINK_CONTROL_MODULE.get()))
                 && uses(helper, "mining_head_ii", new ItemStack(Items.DIAMOND)), "Head II upgrades Head I");
         check(helper, uses(helper, "mining_head_iii", new ItemStack(QuarryRegistries.MINING_HEAD_II.get()))
                 && uses(helper, "mining_head_iii", new ItemStack(Items.NETHERITE_INGOT))
-                && uses(helper, "mining_head_iii", new ItemStack(HomeCoreItems.HOMELINK_MICROPROCESSOR.get())), "Head III upgrades Head II");
+                && uses(helper, "mining_head_iii", new ItemStack(HomeCoreItems.HOMELINK_CONTROL_MODULE.get())), "Head III upgrades Head II");
         helper.succeed();
     }
 

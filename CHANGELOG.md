@@ -2,7 +2,10 @@
 
 ## 1.0.0
 
-Première version.
+Première version, pour HomeCore 1.7.0.
+
+- Recettes : Control Module pour la Quarry II et les Têtes II / III ; Control et Communication
+  Modules pour la Quarry III ; Circuit Board pour la Quarry I et la Tête I.
 
 - Quarry I / II / III (zones 8×8, 16×16, 32×32) et Têtes de forage I / II / III
   (1 bloc / 10, 6, 3 s), toutes combinaisons possibles, têtes sans durabilité.
