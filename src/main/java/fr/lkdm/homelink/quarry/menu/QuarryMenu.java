@@ -4,7 +4,6 @@ import fr.lkdm.homelink.quarry.blockentity.QuarryControllerBlockEntity;
 import fr.lkdm.homelink.quarry.item.MiningHeadItem;
 import fr.lkdm.homelink.quarry.quarry.AreaCheck;
 import fr.lkdm.homelink.quarry.quarry.QuarryArea;
-import fr.lkdm.homelink.quarry.quarry.QuarryFuel;
 import fr.lkdm.homelink.quarry.quarry.QuarryStatus;
 import fr.lkdm.homelink.quarry.registry.QuarryRegistries;
 import net.minecraft.core.BlockPos;
@@ -22,7 +21,7 @@ import net.neoforged.neoforge.items.SlotItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Quarry Controller menu: Mining Head slot, fuel slot, the 27-slot buffer (take only) and the numbers
+ * Quarry Controller menu: Mining Head slot, the 27-slot buffer (take only) and the numbers
  * shown by the screen. Buttons use the vanilla container button packet and are validated here.
  */
 public class QuarryMenu extends AbstractContainerMenu {
@@ -39,8 +38,9 @@ public class QuarryMenu extends AbstractContainerMenu {
     /** Slot positions of the OUTPUT view, centred like the HomeLink Farm station. */
     public static final int HEAD_X = 55;
     public static final int HEAD_Y = 30;
-    public static final int FUEL_X = 163;
-    public static final int FUEL_Y = 30;
+    /** Where the OUTPUT view writes the energy charge, right of the head slot. */
+    public static final int ENERGY_X = 163;
+    public static final int ENERGY_Y = 30;
     public static final int BUFFER_X = 55;
     public static final int BUFFER_Y = 62;
     public static final int INVENTORY_X = 55;
@@ -50,11 +50,11 @@ public class QuarryMenu extends AbstractContainerMenu {
     /** Synced values; 32-bit numbers use two 16-bit data slots. */
     enum Field {
         STATUS, WIDTH, LENGTH, START_Y, STOP_Y, LAYER_Y, PROGRESS, MINED_LO, MINED_HI, REMAINING_LO, REMAINING_HI,
-        HEAD, FUEL_PERCENT, RUNTIME_LO, RUNTIME_HI, ESTIMATE_LO, ESTIMATE_HI, BUFFER_USED, AREA_CHECK, HAS_AREA,
+        HEAD, ENERGY_PERCENT, RUNTIME_LO, RUNTIME_HI, ESTIMATE_LO, ESTIMATE_HI, BUFFER_USED, AREA_CHECK, HAS_AREA,
         LOCKED, MAX_SIDE, OUTPUT_CONNECTED, BUFFER_PERCENT
     }
 
-    private static final int SLOTS = 2 + QuarryControllerBlockEntity.BUFFER_SLOTS;
+    private static final int SLOTS = 1 + QuarryControllerBlockEntity.BUFFER_SLOTS;
 
     private final BlockPos pos;
     @Nullable private final QuarryControllerBlockEntity entity;
@@ -64,24 +64,23 @@ public class QuarryMenu extends AbstractContainerMenu {
 
     /** Client constructor. */
     public QuarryMenu(int id, Inventory inventory, RegistryFriendlyByteBuf buffer) {
-        this(id, inventory, buffer.readBlockPos(), null, new ItemStackHandler(1), new ItemStackHandler(1),
+        this(id, inventory, buffer.readBlockPos(), null, new ItemStackHandler(1),
                 new ItemStackHandler(QuarryControllerBlockEntity.BUFFER_SLOTS), new SimpleContainerData(Field.values().length));
     }
 
     /** Server constructor. */
     public QuarryMenu(int id, Inventory inventory, QuarryControllerBlockEntity entity) {
-        this(id, inventory, entity.getBlockPos(), entity, entity.headSlot(), entity.fuelSlot(), entity.buffer(), new ServerData(entity));
+        this(id, inventory, entity.getBlockPos(), entity, entity.headSlot(), entity.buffer(), new ServerData(entity));
     }
 
     private QuarryMenu(int id, Inventory inventory, BlockPos pos, @Nullable QuarryControllerBlockEntity entity,
-                       IItemHandler head, IItemHandler fuel, IItemHandler buffer, ContainerData data) {
+                       IItemHandler head, IItemHandler buffer, ContainerData data) {
         super(QuarryRegistries.QUARRY_MENU.get(), id);
         this.pos = pos;
         this.entity = entity;
         this.data = data;
         this.clientSide = entity == null;
         addSlot(new ViewSlot(head, 0, HEAD_X, HEAD_Y));
-        addSlot(new ViewSlot(fuel, 0, FUEL_X, FUEL_Y));
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {
                 addSlot(new ViewSlot(buffer, column + row * 9, BUFFER_X + column * 18, BUFFER_Y + row * 18) {
@@ -172,8 +171,6 @@ public class QuarryMenu extends AbstractContainerMenu {
             if (!moveItemStackTo(stack, SLOTS, slots.size(), true)) return ItemStack.EMPTY;
         } else if (stack.getItem() instanceof MiningHeadItem) {
             if (!moveItemStackTo(stack, 0, 1, false)) return ItemStack.EMPTY;
-        } else if (QuarryFuel.isFuel(stack)) {
-            if (!moveItemStackTo(stack, 1, 2, false)) return ItemStack.EMPTY;
         } else {
             return ItemStack.EMPTY;
         }
@@ -204,7 +201,7 @@ public class QuarryMenu extends AbstractContainerMenu {
     public long blocksMined() { return wide(Field.MINED_LO); }
     public long positionsRemaining() { return wide(Field.REMAINING_LO); }
     public int headLevel() { return get(Field.HEAD); }
-    public int fuelPercent() { return get(Field.FUEL_PERCENT); }
+    public int energyPercent() { return get(Field.ENERGY_PERCENT); }
     public long runtimeSeconds() { return wide(Field.RUNTIME_LO); }
     public long estimatedBlocks() { return wide(Field.ESTIMATE_LO); }
     public int bufferUsed() { return get(Field.BUFFER_USED); }
@@ -242,7 +239,7 @@ public class QuarryMenu extends AbstractContainerMenu {
                 case REMAINING_LO -> low(entity.positionsRemaining());
                 case REMAINING_HI -> high(entity.positionsRemaining());
                 case HEAD -> entity.headLevel();
-                case FUEL_PERCENT -> entity.fuelPercent();
+                case ENERGY_PERCENT -> entity.energyPercent();
                 case RUNTIME_LO -> low(entity.runtimeTicks() / 20);
                 case RUNTIME_HI -> high(entity.runtimeTicks() / 20);
                 case ESTIMATE_LO -> low(entity.estimatedBlocks());

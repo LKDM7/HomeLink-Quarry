@@ -7,7 +7,8 @@ import fr.lkdm.homelink.quarry.item.MiningHeadItem;
 import fr.lkdm.homelink.quarry.quarry.AreaCheck;
 import fr.lkdm.homelink.quarry.quarry.MiningHeadTier;
 import fr.lkdm.homelink.quarry.quarry.QuarryArea;
-import fr.lkdm.homelink.quarry.quarry.QuarryFuel;
+import fr.lkdm.homelink.quarry.quarry.QuarryEnergy;
+import fr.lkdm.homecore.api.energy.EnergyBuffer;
 import fr.lkdm.homelink.quarry.quarry.QuarryMiner;
 import fr.lkdm.homelink.quarry.quarry.QuarryOutputPort;
 import net.minecraft.core.Direction;
@@ -68,17 +69,11 @@ public class QuarryControllerBlockEntity extends BlockEntity {
         }
     };
 
-    private final ItemStackHandler fuel = new ItemStackHandler(1) {
-        @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            return QuarryFuel.isFuel(stack);
-        }
+    /** HomeLink Energy received through the HomeCore energy capability, on every face. */
+    private final EnergyBuffer energy = new EnergyBuffer(QuarryEnergy::capacity, this::setChanged);
 
-        @Override
-        protected void onContentsChanged(int slot) {
-            onStateChanged();
-        }
-    };
+    /** Fuel left in the slot of a quarry saved before HE replaced fuel; dropped on the next server tick. */
+    private final ItemStackHandler legacyFuel = new ItemStackHandler(1);
 
     public static final int BUFFER_SLOTS = 27;
 
@@ -91,10 +86,7 @@ public class QuarryControllerBlockEntity extends BlockEntity {
         }
     };
 
-    private final QuarryAutomationHandler automation = new QuarryAutomationHandler(fuel, buffer);
-
-    /** Running ticks left in the internal tank. */
-    private int fuelTicks;
+    private final QuarryAutomationHandler automation = new QuarryAutomationHandler(buffer);
 
     /** Player-chosen name; empty for the default level name. */
     private String customName = "";
@@ -121,7 +113,7 @@ public class QuarryControllerBlockEntity extends BlockEntity {
     private boolean paused;
     private boolean finished;
     private QuarryStatus status = QuarryStatus.IDLE;
-    /** Why a running quarry currently waits (OUTPUT_FULL, NO_FUEL, BLOCKED); recomputed every tick, never saved. */
+    /** Why a running quarry currently waits (OUTPUT_FULL, NO_POWER, BLOCKED); recomputed every tick, never saved. */
     @Nullable private QuarryStatus waiting;
     private int drillTicks;
     private int clientTicksPerBlock;
@@ -153,10 +145,11 @@ public class QuarryControllerBlockEntity extends BlockEntity {
         return head.getStackInSlot(0).getItem() instanceof MiningHeadItem item ? Optional.of(item.tier()) : Optional.empty();
     }
 
-    // ---- Fuel -----------------------------------------------------------------------------------
+    // ---- Energy and buffer ---------------------------------------------------------------------
 
-    public ItemStackHandler fuelSlot() {
-        return fuel;
+    /** Energy port exposed on every face. */
+    public EnergyBuffer energyPort() {
+        return energy;
     }
 
     public ItemStackHandler buffer() {
@@ -419,52 +412,36 @@ public class QuarryControllerBlockEntity extends BlockEntity {
         return automation;
     }
 
-    public int fuelTicks() {
-        return fuelTicks;
+    /** HE stored in the internal buffer. */
+    public long storedEnergy() {
+        return energy.stored();
     }
 
-    /** Fuel supply (tank plus waiting fuel) against one full tank, in [0, 100]. */
-    public int fuelPercent() {
-        return (int) Math.min(100, Math.round(runtimeTicks() * 100.0 / QuarryFuel.CAPACITY));
+    /** Charge of the internal buffer, in [0, 100]. */
+    public int energyPercent() {
+        return energy.percent();
     }
 
-    /** Running ticks available from the tank and the fuel waiting in the slot. */
+    /** Drilling ticks the stored HE lasts with the installed head; 0 without a head. */
     public long runtimeTicks() {
-        ItemStack waiting = fuel.getStackInSlot(0);
-        return fuelTicks + (long) QuarryFuel.burnTicks(waiting) * waiting.getCount();
+        return miningHead().map(tier -> QuarryEnergy.runtimeTicks(energy.stored(), QuarryEnergy.perBlock(), tier)).orElse(0L);
     }
 
-    /** Blocks the installed head can still drill with all available fuel; 0 without a head. */
+    /** Blocks the stored HE can still drill; 0 without a head. */
     public long estimatedBlocks() {
-        return miningHead().map(tier -> QuarryFuel.estimatedBlocks(runtimeTicks(), tier)).orElse(0L);
+        return miningHead().isEmpty() ? 0 : QuarryEnergy.estimatedBlocks(energy.stored(), QuarryEnergy.perBlock());
     }
 
-    public boolean hasFuel() {
-        return fuelTicks > 0 || QuarryFuel.isFuel(fuel.getStackInSlot(0));
+    /** Whether the buffer holds any HE; a quarry never drills for free. */
+    public boolean hasEnergy() {
+        return energy.stored() > 0;
     }
 
-    /**
-     * Moves one fuel item into the tank when it fits, like a furnace would burn it.
-     * Container items such as the empty bucket of a lava bucket stay in the slot.
-     */
-    public boolean refuel() {
-        ItemStack stack = fuel.getStackInSlot(0);
-        int burn = QuarryFuel.burnTicks(stack);
-        if (burn <= 0 || (fuelTicks > 0 && fuelTicks + burn > QuarryFuel.CAPACITY)) return false;
-        ItemStack remainder = stack.getCraftingRemainingItem();
-        if (!remainder.isEmpty() && stack.getCount() > 1) return false;
-        fuelTicks += burn;
-        fuel.setStackInSlot(0, remainder.isEmpty() ? stack.copyWithCount(stack.getCount() - 1) : remainder.copy());
-        setChanged();
-        return true;
-    }
-
-    /** Uses one running tick; refuels first when the tank is empty. */
-    protected boolean consumeFuelTick() {
-        if (fuelTicks <= 0 && !refuel()) return false;
-        fuelTicks--;
-        if (fuelTicks == 0) refuel();
-        return true;
+    /** Pays drilling tick {@code tick} of a block that takes {@code required} ticks; false when HE is missing. */
+    protected boolean consumeDrillEnergy(int tick, int required) {
+        long cost = QuarryEnergy.forDrillTick(tick, required, QuarryEnergy.perBlock());
+        if (energy.stored() < Math.max(1, cost)) return false;
+        return energy.consume(cost);
     }
 
     // ---- Area and depth -------------------------------------------------------------------------
@@ -540,7 +517,7 @@ public class QuarryControllerBlockEntity extends BlockEntity {
         if (check == AreaCheck.MISSING_CORNERS) return QuarryStatus.IDLE;
         if (!check.valid()) return QuarryStatus.INVALID_AREA;
         if (miningHead().isEmpty()) return QuarryStatus.NO_HEAD;
-        if (!hasFuel()) return QuarryStatus.NO_FUEL;
+        if (!hasEnergy()) return QuarryStatus.NO_POWER;
         return null;
     }
 
@@ -573,7 +550,7 @@ public class QuarryControllerBlockEntity extends BlockEntity {
         return true;
     }
 
-    /** Ends the run but keeps area, Stop Y, progress, head, fuel and buffer; START continues the job. */
+    /** Ends the run but keeps area, Stop Y, progress, head, energy and buffer; START continues the job. */
     public boolean stop() {
         if (!running) return false;
         running = false;
@@ -672,7 +649,7 @@ public class QuarryControllerBlockEntity extends BlockEntity {
         if (!checkArea().valid()) return QuarryStatus.INVALID_AREA;
         if (miningHead().isEmpty()) return QuarryStatus.NO_HEAD;
         if (waiting != null) return waiting;
-        if (!hasFuel()) return QuarryStatus.NO_FUEL;
+        if (!hasEnergy()) return QuarryStatus.NO_POWER;
         return QuarryStatus.MINING;
     }
 
@@ -683,7 +660,7 @@ public class QuarryControllerBlockEntity extends BlockEntity {
             clearCracks();
         }
         setChanged();
-        // Area, depth, head or fuel may have changed even when the status did not: the client needs them.
+        // Area, depth, head or energy may have changed even when the status did not: the client needs them.
         sync();
         if (device != null) device.refresh();
     }
@@ -700,6 +677,7 @@ public class QuarryControllerBlockEntity extends BlockEntity {
 
     private void work(ServerLevel level) {
         ensureDevice(level);
+        dropLegacyFuel(level);
         if (portDirty) {
             portDirty = false;
             updatePort(level);
@@ -732,6 +710,15 @@ public class QuarryControllerBlockEntity extends BlockEntity {
         if (status != previous || waiting != waitingBefore || moved) sync();
     }
 
+    /** Gives back, at the controller, the fuel a quarry held before HomeLink Energy replaced fuel. */
+    private void dropLegacyFuel(ServerLevel level) {
+        ItemStack old = legacyFuel.getStackInSlot(0);
+        if (old.isEmpty()) return;
+        legacyFuel.setStackInSlot(0, ItemStack.EMPTY);
+        Containers.dropItemStack(level, worldPosition.getX() + 0.5, worldPosition.getY() + 1, worldPosition.getZ() + 0.5, old.copy());
+        setChanged();
+    }
+
     /** Processes at most one drilled block and a bounded number of passed-over positions. */
     private void mineStep(ServerLevel level) {
         QuarryArea area = area().orElse(null);
@@ -755,8 +742,8 @@ public class QuarryControllerBlockEntity extends BlockEntity {
                     waiting = QuarryStatus.OUTPUT_FULL;
                     return;
                 }
-                if (!consumeFuelTick()) {
-                    waiting = QuarryStatus.NO_FUEL;
+                if (!consumeDrillEnergy(drillTicks + 1, required)) {
+                    waiting = QuarryStatus.NO_POWER;
                     return;
                 }
                 drillTicks++;
@@ -880,7 +867,7 @@ public class QuarryControllerBlockEntity extends BlockEntity {
 
     /** Drops every stored item when the controller is broken; nothing is deleted. */
     public void dropContents(Level level, BlockPos pos) {
-        for (ItemStackHandler handler : new ItemStackHandler[]{head, fuel, buffer}) {
+        for (ItemStackHandler handler : new ItemStackHandler[]{head, legacyFuel, buffer}) {
             for (int slot = 0; slot < handler.getSlots(); slot++) {
                 Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), handler.getStackInSlot(slot).copy());
                 handler.setStackInSlot(slot, ItemStack.EMPTY);
@@ -892,9 +879,9 @@ public class QuarryControllerBlockEntity extends BlockEntity {
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("head", head.serializeNBT(registries));
-        tag.put("fuel", fuel.serializeNBT(registries));
         tag.put("buffer", buffer.serializeNBT(registries));
-        tag.putInt("fuel_ticks", fuelTicks);
+        energy.save(tag, "energy");
+        if (!legacyFuel.getStackInSlot(0).isEmpty()) tag.put("fuel", legacyFuel.serializeNBT(registries));
         if (cornerA != null) tag.put("corner_a", NbtUtils.writeBlockPos(cornerA));
         if (cornerB != null) tag.put("corner_b", NbtUtils.writeBlockPos(cornerB));
         if (stopY != null) tag.putInt("stop_y", stopY);
@@ -919,9 +906,10 @@ public class QuarryControllerBlockEntity extends BlockEntity {
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         if (tag.contains("head")) head.deserializeNBT(registries, tag.getCompound("head"));
-        if (tag.contains("fuel")) fuel.deserializeNBT(registries, tag.getCompound("fuel"));
+        // Quarries saved with the old fuel slot: the fuel is dropped next tick, its burn time is not converted.
+        if (tag.contains("fuel")) legacyFuel.deserializeNBT(registries, tag.getCompound("fuel"));
         if (tag.contains("buffer")) buffer.deserializeNBT(registries, tag.getCompound("buffer"));
-        fuelTicks = Math.max(0, tag.getInt("fuel_ticks"));
+        energy.load(tag, "energy");
         cornerA = NbtUtils.readBlockPos(tag, "corner_a").orElse(null);
         cornerB = NbtUtils.readBlockPos(tag, "corner_b").orElse(null);
         stopY = tag.contains("stop_y") ? tag.getInt("stop_y") : null;

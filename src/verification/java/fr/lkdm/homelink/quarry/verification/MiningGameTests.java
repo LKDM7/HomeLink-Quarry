@@ -37,7 +37,7 @@ public final class MiningGameTests {
             BlockPos controller = new BlockPos(0, 1, i * 3);
             BlockPos target = new BlockPos(2, 1, i * 3);
             helper.setBlock(target, Blocks.STONE);
-            QuarryControllerBlockEntity entity = quarry(helper, controller, target, target, heads.get(i), new ItemStack(Items.COAL));
+            QuarryControllerBlockEntity entity = quarry(helper, controller, target, target, heads.get(i), FILL);
             check(helper, entity.start(), "Start failed");
             int required = ticks[i];
             helper.runAtTickTime(required - 3, () -> helper.assertBlockPresent(Blocks.STONE, target));
@@ -55,7 +55,7 @@ public final class MiningGameTests {
         BlockPos a = new BlockPos(2, 2, 0);
         BlockPos b = new BlockPos(3, 2, 1);
         for (int y = 0; y <= 2; y++) for (int x = 2; x <= 3; x++) for (int z = 0; z <= 1; z++) helper.setBlock(new BlockPos(x, y, z), Blocks.DIRT);
-        QuarryControllerBlockEntity entity = quarry(helper, new BlockPos(0, 1, 0), a, b, QuarryRegistries.MINING_HEAD_III.get(), new ItemStack(Items.COAL));
+        QuarryControllerBlockEntity entity = quarry(helper, new BlockPos(0, 1, 0), a, b, QuarryRegistries.MINING_HEAD_III.get(), FILL);
         entity.setStopY(helper.absolutePos(new BlockPos(0, 1, 0)).getY());
         check(helper, entity.start(), "Start failed");
         helper.runAtTickTime(60 * 4 + 5, () -> {
@@ -80,7 +80,7 @@ public final class MiningGameTests {
         helper.setBlock(a, Blocks.BEDROCK);
         helper.setBlock(new BlockPos(3, 1, 0), Blocks.AIR);
         helper.setBlock(b, Blocks.STONE);
-        QuarryControllerBlockEntity entity = quarry(helper, new BlockPos(0, 1, 0), a, b, QuarryRegistries.MINING_HEAD_III.get(), new ItemStack(Items.COAL));
+        QuarryControllerBlockEntity entity = quarry(helper, new BlockPos(0, 1, 0), a, b, QuarryRegistries.MINING_HEAD_III.get(), FILL);
         entity.setStopY(helper.absolutePos(a).getY());
         check(helper, entity.start(), "Start failed");
         helper.succeedWhen(() -> {
@@ -98,7 +98,7 @@ public final class MiningGameTests {
         ChestBlockEntity inventory = helper.getBlockEntity(chest);
         inventory.setItem(0, new ItemStack(Items.DIAMOND, 5));
         inventory.setItem(10, new ItemStack(Items.IRON_INGOT, 64));
-        QuarryControllerBlockEntity entity = quarry(helper, new BlockPos(0, 1, 0), chest, chest, QuarryRegistries.MINING_HEAD_III.get(), new ItemStack(Items.COAL));
+        QuarryControllerBlockEntity entity = quarry(helper, new BlockPos(0, 1, 0), chest, chest, QuarryRegistries.MINING_HEAD_III.get(), FILL);
         check(helper, entity.start(), "Start failed");
         helper.succeedWhen(() -> {
             helper.assertBlockPresent(Blocks.AIR, chest);
@@ -113,7 +113,7 @@ public final class MiningGameTests {
     public static void fullBufferPausesMining(GameTestHelper helper) {
         BlockPos target = new BlockPos(2, 1, 0);
         helper.setBlock(target, Blocks.STONE);
-        QuarryControllerBlockEntity entity = quarry(helper, new BlockPos(0, 1, 0), target, target, QuarryRegistries.MINING_HEAD_III.get(), new ItemStack(Items.COAL));
+        QuarryControllerBlockEntity entity = quarry(helper, new BlockPos(0, 1, 0), target, target, QuarryRegistries.MINING_HEAD_III.get(), FILL);
         for (int slot = 0; slot < QuarryControllerBlockEntity.BUFFER_SLOTS; slot++) entity.buffer().setStackInSlot(slot, new ItemStack(Items.DIRT, 64));
         check(helper, entity.start(), "Start failed");
         helper.runAtTickTime(100, () -> {
@@ -129,60 +129,59 @@ public final class MiningGameTests {
         });
     }
 
-    /** Running out of fuel stops drilling (NO_FUEL); refuelling continues the same block. */
-    @GameTest(template = "empty", batch = "mining_fuel", timeoutTicks = 400)
-    public static void emptyFuelWaitsAndResumes(GameTestHelper helper) {
+    /** Running out of HE stops drilling (NO_POWER); recharging continues the same block. */
+    @GameTest(template = "empty", batch = "mining_energy", timeoutTicks = 400)
+    public static void emptyEnergyWaitsAndResumes(GameTestHelper helper) {
         BlockPos target = new BlockPos(2, 1, 0);
         helper.setBlock(target, Blocks.STONE);
-        // A stick burns 100 ticks: half of what Head I needs for one block.
-        QuarryControllerBlockEntity entity = quarry(helper, new BlockPos(0, 1, 0), target, target, QuarryRegistries.MINING_HEAD_I.get(), new ItemStack(Items.STICK));
+        // 50 HE is half of a 100 HE block: Head I (200 ticks) drills 100 ticks with it.
+        QuarryControllerBlockEntity entity = quarry(helper, new BlockPos(0, 1, 0), target, target, QuarryRegistries.MINING_HEAD_I.get(),  50);
         check(helper, entity.start(), "Start failed");
         helper.runAtTickTime(150, () -> {
-            check(helper, entity.status() == QuarryStatus.NO_FUEL && entity.drillTicks() == 100, "Expected NO_FUEL at 100 ticks");
+            check(helper, entity.status() == QuarryStatus.NO_POWER && entity.drillTicks() == 100, "Expected NO_POWER at 100 ticks, got " + entity.status() + " at " + entity.drillTicks());
             helper.assertBlockPresent(Blocks.STONE, target);
-            entity.fuelSlot().setStackInSlot(0, new ItemStack(Items.LAVA_BUCKET));
+            entity.energyPort().insert(FILL, false);
         });
         helper.runAtTickTime(240, () -> helper.assertBlockPresent(Blocks.STONE, target));
         helper.runAtTickTime(260, () -> {
             helper.assertBlockPresent(Blocks.AIR, target);
-            check(helper, entity.fuelSlot().getStackInSlot(0).is(Items.BUCKET), "Lava bucket not returned");
             helper.succeed();
         });
     }
 
-    /** PAUSE freezes the drill and the fuel; RESUME continues the same block. */
+    /** PAUSE freezes the drill and the energy; RESUME continues the same block. */
     @GameTest(template = "empty", batch = "mining_pause", timeoutTicks = 300)
     public static void pauseFreezesEverything(GameTestHelper helper) {
         BlockPos target = new BlockPos(2, 1, 0);
         helper.setBlock(target, Blocks.STONE);
-        QuarryControllerBlockEntity entity = quarry(helper, new BlockPos(0, 1, 0), target, target, QuarryRegistries.MINING_HEAD_II.get(), new ItemStack(Items.COAL));
+        QuarryControllerBlockEntity entity = quarry(helper, new BlockPos(0, 1, 0), target, target, QuarryRegistries.MINING_HEAD_II.get(), FILL);
         check(helper, entity.start(), "Start failed");
-        int[] frozen = new int[2];
+        long[] frozen = new long[2];
         helper.runAtTickTime(50, () -> {
             check(helper, entity.pause(), "Pause refused");
             frozen[0] = entity.drillTicks();
-            frozen[1] = entity.fuelTicks();
+            frozen[1] = entity.storedEnergy();
         });
         helper.runAtTickTime(150, () -> {
-            check(helper, entity.drillTicks() == frozen[0] && entity.fuelTicks() == frozen[1], "Paused quarry kept working");
+            check(helper, entity.drillTicks() == frozen[0] && entity.storedEnergy() == frozen[1], "Paused quarry kept working");
             check(helper, entity.status() == QuarryStatus.PAUSED, "Not PAUSED");
             helper.assertBlockPresent(Blocks.STONE, target);
             check(helper, entity.resume(), "Resume refused");
         });
-        helper.runAtTickTime(150 + 120 - frozen[0] + 5, () -> {
+        helper.runAtTickTime(150 + 120 - (int) frozen[0] + 5, () -> {
             helper.assertBlockPresent(Blocks.AIR, target);
             helper.succeed();
         });
     }
 
-    /** Server restart: the saved block entity resumes the same target, drill time, fuel and buffer. */
+    /** Server restart: the saved block entity resumes the same target, drill time, energy and buffer. */
     @GameTest(template = "empty", batch = "mining_restart", timeoutTicks = 100)
     public static void restartKeepsTheJob(GameTestHelper helper) {
         BlockPos a = new BlockPos(2, 1, 0);
         BlockPos b = new BlockPos(3, 1, 0);
         helper.setBlock(a, Blocks.STONE);
         helper.setBlock(b, Blocks.STONE);
-        QuarryControllerBlockEntity entity = quarry(helper, new BlockPos(0, 1, 0), a, b, QuarryRegistries.MINING_HEAD_III.get(), new ItemStack(Items.COAL, 3));
+        QuarryControllerBlockEntity entity = quarry(helper, new BlockPos(0, 1, 0), a, b, QuarryRegistries.MINING_HEAD_III.get(), FILL);
         entity.setStopY(helper.absolutePos(a).getY());
         entity.buffer().setStackInSlot(4, new ItemStack(Items.GOLD_INGOT, 7));
         check(helper, entity.start(), "Start failed");
@@ -193,22 +192,25 @@ public final class MiningGameTests {
             copy.setLevel(helper.getLevel());
             copy.loadWithComponents(saved, registries);
             check(helper, copy.cursor() == entity.cursor() && copy.drillTicks() == entity.drillTicks(), "Progress lost");
-            check(helper, copy.blocksMined() == 1 && copy.fuelTicks() == entity.fuelTicks(), "Counters or fuel lost");
+            check(helper, copy.blocksMined() == 1 && copy.storedEnergy() == entity.storedEnergy(), "Counters or energy lost");
             check(helper, copy.running() && copy.buffer().getStackInSlot(4).getCount() == 7, "State or buffer lost");
             check(helper, copy.currentTarget().equals(helper.absolutePos(b)), "Current target lost");
             helper.succeed();
         });
     }
 
-    static QuarryControllerBlockEntity quarry(GameTestHelper helper, BlockPos controller, BlockPos a, BlockPos b, Item head, ItemStack fuel) {
+    static QuarryControllerBlockEntity quarry(GameTestHelper helper, BlockPos controller, BlockPos a, BlockPos b, Item head, long energy) {
         helper.setBlock(controller, QuarryRegistries.QUARRY_I.get());
         QuarryControllerBlockEntity entity = helper.getBlockEntity(controller);
         entity.setCorners(helper.absolutePos(a), helper.absolutePos(b));
         entity.setStopY(Math.min(helper.absolutePos(a).getY(), helper.absolutePos(b).getY()));
         entity.headSlot().setStackInSlot(0, new ItemStack(head));
-        entity.fuelSlot().setStackInSlot(0, fuel);
+        entity.energyPort().insert(energy, false);
         return entity;
     }
+
+    /** Fills the whole internal HE buffer (the buffer clamps what it accepts). */
+    static final long FILL = Long.MAX_VALUE;
 
     static int count(QuarryControllerBlockEntity entity, Item item) {
         int total = 0;

@@ -34,7 +34,7 @@ final class QuarryScenes {
     static void build(List<QuarrySmoke.Step> steps) {
         foundations(steps);
         areaSelection(steps);
-        fuel(steps);
+        energy(steps);
         mining(steps);
         interfaceAndRestart(steps);
         preview(steps);
@@ -99,7 +99,7 @@ final class QuarryScenes {
             var entity = (QuarryControllerBlockEntity) level.getBlockEntity(PREVIEW_QUARRY);
             check(entity.setCorners(PREVIEW_A, PREVIEW_B), "Corners");
             entity.headSlot().setStackInSlot(0, new ItemStack(QuarryRegistries.MINING_HEAD_III.get()));
-            entity.fuelSlot().setStackInSlot(0, new ItemStack(net.minecraft.world.item.Items.COAL_BLOCK, 4));
+            entity.energyPort().insert(Long.MAX_VALUE, false);
             level.setBlockAndUpdate(INVALID_QUARRY, QuarryRegistries.QUARRY_I.get().defaultBlockState()
                     .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH));
             var invalid = (QuarryControllerBlockEntity) level.getBlockEntity(INVALID_QUARRY);
@@ -247,7 +247,7 @@ final class QuarryScenes {
             check(menu.width() == 6 && menu.length() == 6, "GUI area " + menu.width() + "x" + menu.length());
             check(menu.headLevel() == 3 && menu.status() == fr.lkdm.homelink.quarry.quarry.QuarryStatus.MINING, "GUI head/status " + menu.status());
             check(menu.blocksMined() > 0 && menu.progress() > 0 && menu.bufferUsed() > 0, "GUI counters");
-            check(menu.fuelPercent() > 0 && menu.runtimeSeconds() > 0 && menu.estimatedBlocks() > 0, "GUI fuel");
+            check(menu.energyPercent() > 0 && menu.runtimeSeconds() > 0 && menu.estimatedBlocks() > 0, "GUI energy");
         }));
         steps.add(screenshot("phase6-gui-mining"));
         steps.add(click(fr.lkdm.homelink.quarry.client.screen.QuarryScreenLayout.PRIMARY));
@@ -283,7 +283,7 @@ final class QuarryScenes {
         steps.add(screenshot("phase6-gui-area-view"));
         steps.add(click(fr.lkdm.homelink.quarry.client.screen.QuarryScreenLayout.SHOW_LAYERS));
         steps.add(click(fr.lkdm.homelink.quarry.client.screen.QuarryScreenLayout.BACK));
-        // OUTPUT view: head, fuel, buffer and inventory slots.
+        // OUTPUT view: head, energy, buffer and inventory slots.
         steps.add(waitTicks(3));
         steps.add(click(fr.lkdm.homelink.quarry.client.screen.QuarryScreenLayout.OUTPUT));
         steps.add(waitTicks(5));
@@ -315,7 +315,7 @@ final class QuarryScenes {
             check(entity.pause(), "Pause before restart");
             BEFORE_RESTART[0] = entity.cursor();
             BEFORE_RESTART[1] = entity.blocksMined();
-            BEFORE_RESTART[2] = entity.fuelTicks();
+            BEFORE_RESTART[2] = entity.storedEnergy();
             BEFORE_RESTART[3] = count(entity, net.minecraft.world.item.Items.DIAMOND);
             check(BEFORE_RESTART[1] > 0, "Nothing mined before restart");
         }));
@@ -325,8 +325,8 @@ final class QuarryScenes {
             check(entity != null, "Controller missing after restart");
             check(entity.paused() && entity.status() == fr.lkdm.homelink.quarry.quarry.QuarryStatus.PAUSED, "Pause lost: " + entity.status());
             check(entity.cursor() == BEFORE_RESTART[0] && entity.blocksMined() == BEFORE_RESTART[1], "Progress lost after restart");
-            check(entity.fuelTicks() == BEFORE_RESTART[2] && count(entity, net.minecraft.world.item.Items.DIAMOND) == BEFORE_RESTART[3],
-                    "Fuel or buffer changed after restart");
+            check(entity.storedEnergy() == BEFORE_RESTART[2] && count(entity, net.minecraft.world.item.Items.DIAMOND) == BEFORE_RESTART[3],
+                    "Energy or buffer changed after restart");
             check(entity.miningHead().isPresent() && entity.area().orElseThrow().width() == 6, "Head or area lost after restart");
             check(entity.resume(), "Resume after restart");
         }));
@@ -370,7 +370,7 @@ final class QuarryScenes {
             var entity = (QuarryControllerBlockEntity) level.getBlockEntity(MINING_CONTROLLER);
             check(entity.setCorners(MINING_A, MINING_B), "Corners refused");
             entity.headSlot().setStackInSlot(0, new ItemStack(QuarryRegistries.MINING_HEAD_III.get()));
-            entity.fuelSlot().setStackInSlot(0, new ItemStack(net.minecraft.world.item.Items.COAL_BLOCK, 2));
+            entity.energyPort().insert(Long.MAX_VALUE, false);
             check(entity.start(), "Quarry III refused to start: " + entity.status());
             camera(player, -0.5, GROUND + 7, 19.0, 0F, 50F);
         }));
@@ -405,7 +405,7 @@ final class QuarryScenes {
             var ground = player.level().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
                     new net.minecraft.world.phys.AABB(MINING_A).inflate(12));
             check(ground.isEmpty(), "Items lying on the ground: " + ground.size());
-            check(entity.fuelTicks() < 32000, "No fuel consumed");
+            check(entity.storedEnergy() < fr.lkdm.homelink.quarry.quarry.QuarryEnergy.capacity(), "No energy used");
             LOG_MINED[0] = entity.blocksMined();
         }));
         steps.add(screenshot("phase5-after-20s"));
@@ -432,8 +432,8 @@ final class QuarryScenes {
         return total;
     }
 
-    /** Phase 4: a real hopper feeds coal into the fuel slot of a running world. */
-    private static void fuel(List<QuarrySmoke.Step> steps) {
+    /** Phase 4: the quarry takes HE through the HomeCore energy capability; a hopper cannot feed it fuel anymore. */
+    private static void energy(List<QuarrySmoke.Step> steps) {
         BlockPos quarry = new BlockPos(10, GROUND, 6);
         steps.add(server(player -> {
             var level = player.serverLevel();
@@ -449,12 +449,14 @@ final class QuarryScenes {
         steps.add(server(player -> {
             var entity = (QuarryControllerBlockEntity) player.level().getBlockEntity(quarry);
             var hopper = (net.minecraft.world.level.block.entity.HopperBlockEntity) player.level().getBlockEntity(quarry.above());
-            check(entity.fuelSlot().getStackInSlot(0).getCount() == 5, "Hopper did not deliver the coal");
+            check(hopper.countItem(net.minecraft.world.item.Items.COAL) == 5, "The quarry accepted coal");
             check(hopper.countItem(net.minecraft.world.item.Items.DIRT) == 3, "Dirt went into the quarry");
-            check(entity.runtimeTicks() == 8000, "Runtime of 5 coal");
+            var port = player.level().getCapability(fr.lkdm.homecore.api.energy.EnergyApi.BLOCK, quarry, Direction.EAST);
+            check(port != null && port.insert(2_500, false) == 2_500, "No HE input on the quarry");
+            check(entity.energyPercent() == 50 && entity.estimatedBlocks() == 0, "Energy without a head: " + entity.energyPercent());
         }));
-        steps.add(screenshot("phase4-hopper-fuel"));
-        steps.add(log("QUARRY_FUEL_CLIENT_OK"));
+        steps.add(screenshot("phase4-energy-input"));
+        steps.add(log("QUARRY_ENERGY_CLIENT_OK"));
     }
 
     static List<Block> quarries() {

@@ -43,8 +43,8 @@ import net.minecraft.world.level.Level;
  * announced as events. A fault (ERROR) maps to ERROR and an unloaded quarry is OFFLINE.</p>
  */
 public final class QuarryDevice implements DashboardDevice {
-    /** fuel_low re-arms once the fuel is back this many points above the threshold. */
-    public static final int FUEL_HYSTERESIS = 10;
+    /** energy_low re-arms once the charge is back this many points above the threshold. */
+    public static final int ENERGY_HYSTERESIS = 10;
 
     private final QuarryControllerBlockEntity quarry;
     private final UUID identity;
@@ -66,16 +66,16 @@ public final class QuarryDevice implements DashboardDevice {
     private final DeviceMetric<Integer> head = integer(QuarryIds.MINING_HEAD_LEVEL, "Mining head level", Unit.NONE, 0, 3);
     private final DeviceMetric<Double> speed = DeviceMetric.builder(QuarryIds.MINING_SPEED, name(QuarryIds.MINING_SPEED, "Seconds per block"),
             MetricTypes.DOUBLE, 0.0).unit(Unit.SECONDS).range(0, 10, 0).updatePolicy(UpdatePolicy.ON_CHANGE).build();
-    private final DeviceMetric<Percentage> fuel = percentage(QuarryIds.FUEL_PERCENTAGE, "Fuel");
+    private final DeviceMetric<Percentage> energy = percentage(QuarryIds.ENERGY_PERCENTAGE, "Energy");
     private final DeviceMetric<Duration> runtime = DeviceMetric.builder(QuarryIds.RUNTIME_REMAINING, name(QuarryIds.RUNTIME_REMAINING, "Runtime remaining"),
             MetricTypes.DURATION, new Duration(0)).unit(Unit.TICKS).updatePolicy(UpdatePolicy.ON_CHANGE).build();
-    private final DeviceMetric<Long> estimate = count(QuarryIds.ESTIMATED_BLOCKS, "Estimated blocks with fuel", Unit.BLOCK);
+    private final DeviceMetric<Long> estimate = count(QuarryIds.ESTIMATED_BLOCKS, "Estimated blocks with stored energy", Unit.BLOCK);
     private final DeviceMetric<Percentage> output = percentage(QuarryIds.OUTPUT_USAGE, "Output usage");
     private final DeviceMetric<Long> outputItems = count(QuarryIds.OUTPUT_ITEM_COUNT, "Items in output", Unit.ITEM);
     private final DeviceMetric<Boolean> storage = DeviceMetric.builder(QuarryIds.STORAGE_CONNECTED, name(QuarryIds.STORAGE_CONNECTED, "Storage output connected"),
             MetricTypes.BOOLEAN, false).updatePolicy(UpdatePolicy.ON_CHANGE).build();
     private final List<DeviceMetric<?>> metrics = List.of(status, level, width, length, startY, stopY, layer, progress, mined, lifetime,
-            remaining, head, speed, fuel, runtime, estimate, output, outputItems, storage);
+            remaining, head, speed, energy, runtime, estimate, output, outputItems, storage);
     private final List<DeviceAction<?>> actions;
     private final DeviceSchema schema;
 
@@ -86,7 +86,7 @@ public final class QuarryDevice implements DashboardDevice {
     private boolean lastPaused;
     private boolean lastFinished;
     private boolean lastConnected;
-    private boolean fuelLowArmed = true;
+    private boolean energyLowArmed = true;
 
     public QuarryDevice(QuarryControllerBlockEntity quarry, Consumer<DeviceEvent> events) {
         this.quarry = quarry;
@@ -97,7 +97,7 @@ public final class QuarryDevice implements DashboardDevice {
                         () -> Component.translatable("screen.homelink_quarry.cannot_start", Component.translatable(quarry.status().key()))),
                 button(QuarryIds.ACTION_PAUSE, "Pause", "Freeze the quarry exactly where it is.", quarry::pause, () -> notNow("pause")),
                 button(QuarryIds.ACTION_RESUME, "Resume", "Continue a paused job.", quarry::resume, () -> notNow("resume")),
-                button(QuarryIds.ACTION_STOP, "Stop", "End the run; area, progress, head, fuel and output are kept.", quarry::stop,
+                button(QuarryIds.ACTION_STOP, "Stop", "End the run; area, progress, head, energy and output are kept.", quarry::stop,
                         () -> notNow("stop")));
         this.schema = DeviceSchema.from(this);
         refresh();
@@ -172,7 +172,7 @@ public final class QuarryDevice implements DashboardDevice {
         remaining.setValue(quarry.positionsRemaining());
         head.setValue(quarry.headLevel());
         speed.setValue(quarry.miningHead().map(tier -> (double) tier.secondsPerBlock()).orElse(0.0));
-        fuel.setValue(new Percentage(quarry.fuelPercent()));
+        energy.setValue(new Percentage(quarry.energyPercent()));
         runtime.setValue(new Duration(quarry.runtimeTicks()));
         estimate.setValue(quarry.estimatedBlocks());
         output.setValue(new Percentage(quarry.bufferPercent()));
@@ -186,11 +186,11 @@ public final class QuarryDevice implements DashboardDevice {
         boolean running = quarry.running();
         boolean paused = quarry.paused();
         boolean finished = quarry.finished();
-        int fuelPercent = quarry.fuelPercent();
-        int threshold = QuarryConfig.FUEL_LOW_THRESHOLD.get();
+        int energyPercent = quarry.energyPercent();
+        int threshold = QuarryConfig.ENERGY_LOW_THRESHOLD.get();
         if (!observed) {
             observed = true;
-            fuelLowArmed = fuelPercent > threshold;
+            energyLowArmed = energyPercent > threshold;
         } else {
             List<DeviceEvent> out = new ArrayList<>();
             if (running && !lastRunning) out.add(event(QuarryIds.STARTED, DeviceEvent.Severity.INFO, Map.of()));
@@ -199,8 +199,8 @@ public final class QuarryDevice implements DashboardDevice {
             if (running && !paused && lastPaused && lastRunning) out.add(event(QuarryIds.RESUMED, DeviceEvent.Severity.INFO, Map.of()));
             if (finished && !lastFinished) out.add(event(QuarryIds.FINISHED, DeviceEvent.Severity.INFO,
                     Map.of("blocks_mined", Long.toString(quarry.blocksMined()))));
-            if (now == QuarryStatus.NO_FUEL && lastStatus != QuarryStatus.NO_FUEL && running)
-                out.add(event(QuarryIds.FUEL_EMPTY, DeviceEvent.Severity.WARNING, Map.of()));
+            if (now == QuarryStatus.NO_POWER && lastStatus != QuarryStatus.NO_POWER && running)
+                out.add(event(QuarryIds.NO_POWER, DeviceEvent.Severity.WARNING, Map.of()));
             if (now == QuarryStatus.OUTPUT_FULL && lastStatus != QuarryStatus.OUTPUT_FULL)
                 out.add(event(QuarryIds.OUTPUT_FULL, DeviceEvent.Severity.WARNING, Map.of("output_usage", Integer.toString(quarry.bufferPercent()))));
             if (lastStatus == QuarryStatus.OUTPUT_FULL && now != QuarryStatus.OUTPUT_FULL)
@@ -209,13 +209,13 @@ public final class QuarryDevice implements DashboardDevice {
                 out.add(event(QuarryIds.BLOCKED, DeviceEvent.Severity.CRITICAL, Map.of()));
             if (connected && !lastConnected) out.add(event(QuarryIds.STORAGE_CONNECTED_EVENT, DeviceEvent.Severity.INFO, Map.of()));
             if (!connected && lastConnected) out.add(event(QuarryIds.STORAGE_DISCONNECTED, DeviceEvent.Severity.WARNING, Map.of()));
-            // One fuel_low per crossing; refuelling well above the threshold re-arms it.
-            if (fuelLowArmed && running && fuelPercent <= threshold) {
-                fuelLowArmed = false;
-                out.add(event(QuarryIds.FUEL_LOW, DeviceEvent.Severity.WARNING, Map.of("fuel_percentage", Integer.toString(fuelPercent),
+            // One energy_low per crossing; recharging well above the threshold re-arms it.
+            if (energyLowArmed && running && energyPercent <= threshold) {
+                energyLowArmed = false;
+                out.add(event(QuarryIds.ENERGY_LOW, DeviceEvent.Severity.WARNING, Map.of("energy_percentage", Integer.toString(energyPercent),
                         "runtime_ticks", Long.toString(quarry.runtimeTicks()))));
-            } else if (!fuelLowArmed && fuelPercent >= Math.min(100, threshold + FUEL_HYSTERESIS)) {
-                fuelLowArmed = true;
+            } else if (!energyLowArmed && energyPercent >= Math.min(100, threshold + ENERGY_HYSTERESIS)) {
+                energyLowArmed = true;
             }
             out.forEach(events);
         }

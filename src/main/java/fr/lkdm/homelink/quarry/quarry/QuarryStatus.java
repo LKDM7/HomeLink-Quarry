@@ -3,7 +3,7 @@ package fr.lkdm.homelink.quarry.quarry;
 import java.util.Locale;
 
 /**
- * Observable quarry state. Waiting states (NO_FUEL, NO_HEAD, OUTPUT_FULL, BLOCKED) resume by themselves
+ * Observable quarry state. Waiting states (NO_POWER, NO_HEAD, OUTPUT_FULL, BLOCKED) resume by themselves
  * once the cause disappears; PAUSED only resumes on an explicit RESUME.
  */
 public enum QuarryStatus {
@@ -11,7 +11,8 @@ public enum QuarryStatus {
     READY,
     MINING,
     PAUSED,
-    NO_FUEL,
+    /** Not enough HomeLink Energy to drill: the quarry waits, it never mines for free. */
+    NO_POWER,
     NO_HEAD,
     OUTPUT_FULL,
     INVALID_AREA,

@@ -23,7 +23,7 @@ public final class QuarryTheme {
         return switch (status) {
             case MINING, READY -> ONLINE;
             case IDLE, PAUSED, FINISHED -> MUTED;
-            case NO_FUEL, NO_HEAD, OUTPUT_FULL -> WARNING;
+            case NO_POWER, NO_HEAD, OUTPUT_FULL -> WARNING;
             case INVALID_AREA, BLOCKED, ERROR -> OFFLINE;
         };
     }

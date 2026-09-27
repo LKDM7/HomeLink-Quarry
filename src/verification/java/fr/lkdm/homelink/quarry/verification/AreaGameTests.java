@@ -98,8 +98,8 @@ public final class AreaGameTests {
         entity.setCorners(origin.offset(2, 0, 2), origin.offset(5, 0, 5));
         check(helper, !entity.start() && entity.status() == QuarryStatus.NO_HEAD, "Started without a head");
         entity.headSlot().setStackInSlot(0, new ItemStack(QuarryRegistries.MINING_HEAD_I.get()));
-        check(helper, !entity.start() && entity.status() == QuarryStatus.NO_FUEL, "Started without fuel");
-        entity.fuelSlot().setStackInSlot(0, new ItemStack(net.minecraft.world.item.Items.COAL));
+        check(helper, !entity.start() && entity.status() == QuarryStatus.NO_POWER, "Started without energy");
+        entity.energyPort().insert(1_000, false);
         check(helper, entity.start() && entity.running(), "Valid quarry did not start");
         check(helper, !entity.setCorners(origin, origin.offset(1, 0, 1)) && !entity.setStopY(0), "Configuration not locked while running");
         check(helper, entity.pause() && entity.status() == QuarryStatus.PAUSED, "Pause");
@@ -116,7 +116,7 @@ public final class AreaGameTests {
         entity.setCorners(origin.offset(2, 3, 2), origin.offset(11, 0, 15));
         entity.setStopY(origin.getY() - 10);
         entity.headSlot().setStackInSlot(0, new ItemStack(QuarryRegistries.MINING_HEAD_II.get()));
-        entity.fuelSlot().setStackInSlot(0, new ItemStack(net.minecraft.world.item.Items.COAL));
+        entity.energyPort().insert(1_000, false);
         check(helper, entity.start(), "Start");
         entity.pause();
         var registries = helper.getLevel().registryAccess();

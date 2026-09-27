@@ -124,7 +124,7 @@ public final class QuarryAreaRenderer {
     /** A job exists (started, maybe waiting or paused): only then is there a current target to show. */
     private static boolean activeJob(QuarryStatus status) {
         return switch (status) {
-            case MINING, PAUSED, NO_FUEL, NO_HEAD, OUTPUT_FULL, BLOCKED -> true;
+            case MINING, PAUSED, NO_POWER, NO_HEAD, OUTPUT_FULL, BLOCKED -> true;
             default -> false;
         };
     }

@@ -18,7 +18,8 @@ public final class QuarryConfig {
     public static final ModConfigSpec.IntValue MAX_CONTROLLER_DISTANCE;
     public static final ModConfigSpec.IntValue POSITIONS_PER_TICK;
     public static final ModConfigSpec.IntValue TRANSFER_INTERVAL;
-    public static final ModConfigSpec.IntValue FUEL_LOW_THRESHOLD;
+    public static final ModConfigSpec.IntValue ENERGY_LOW_THRESHOLD;
+    public static final ModConfigSpec.IntValue ENERGY_PER_BLOCK;
     public static final ModConfigSpec.BooleanValue MINE_CONTAINERS;
 
     public static final ModConfigSpec.IntValue PREVIEW_RENDER_DISTANCE;
@@ -41,8 +42,12 @@ public final class QuarryConfig {
                 .defineInRange("quarryPositionsPerTick", 64, 1, 1024);
         TRANSFER_INTERVAL = server.comment("Ticks between two stack transfers from the buffer to a connected ITEM_INPUT.")
                 .defineInRange("quarryTransferInterval", 20, 1, 1200);
-        FUEL_LOW_THRESHOLD = server.comment("Fuel percentage at or below which the fuel_low warning is raised.")
-                .defineInRange("quarryFuelLowThreshold", 15, 0, 100);
+        ENERGY_LOW_THRESHOLD = server.comment("Charge percentage of the internal HE buffer at or below which the energy_low warning is raised.")
+                .defineInRange("quarryEnergyLowThreshold", 15, 0, 100);
+        ENERGY_PER_BLOCK = server.comment("HomeLink Energy (HE) used to drill one block, whatever the Mining Head. The quarry runs on HE only.",
+                        "The head only sets how fast this energy is asked for; energy never makes the quarry faster.",
+                        "The internal buffer holds 50 blocks of drilling. For scale: 1 coal = 4000 HE, a Solar Panel III makes 20000 HE a day.")
+                .defineInRange("quarryEnergyPerBlock", 100, 1, 1_000_000);
         MINE_CONTAINERS = server.comment("Mine blocks that hold an inventory. Their contents go to the buffer with the block;",
                         "when the whole content cannot fit in an empty buffer the block is left in place.")
                 .define("quarryMineContainers", true);

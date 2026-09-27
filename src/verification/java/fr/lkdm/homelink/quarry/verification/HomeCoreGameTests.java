@@ -71,7 +71,7 @@ public final class HomeCoreGameTests {
             var schema = device.schema();
             for (ResourceLocation id : List.of(QuarryIds.STATUS, QuarryIds.QUARRY_LEVEL, QuarryIds.AREA_WIDTH, QuarryIds.AREA_LENGTH,
                     QuarryIds.START_Y, QuarryIds.STOP_Y, QuarryIds.CURRENT_LAYER, QuarryIds.PROGRESS, QuarryIds.BLOCKS_MINED,
-                    QuarryIds.BLOCKS_REMAINING, QuarryIds.MINING_HEAD_LEVEL, QuarryIds.MINING_SPEED, QuarryIds.FUEL_PERCENTAGE,
+                    QuarryIds.BLOCKS_REMAINING, QuarryIds.MINING_HEAD_LEVEL, QuarryIds.MINING_SPEED, QuarryIds.ENERGY_PERCENTAGE,
                     QuarryIds.RUNTIME_REMAINING, QuarryIds.ESTIMATED_BLOCKS, QuarryIds.OUTPUT_USAGE, QuarryIds.OUTPUT_ITEM_COUNT,
                     QuarryIds.STORAGE_CONNECTED)) {
                 check(helper, schema.metrics().stream().anyMatch(metric -> metric.id().equals(id)), "Missing metric " + id);
@@ -90,7 +90,7 @@ public final class HomeCoreGameTests {
     public static void metricsAndStatus(GameTestHelper helper) {
         QuarryControllerBlockEntity entity = quarry(helper);
         entity.headSlot().setStackInSlot(0, new ItemStack(QuarryRegistries.MINING_HEAD_III.get()));
-        entity.fuelSlot().setStackInSlot(0, new ItemStack(Items.COAL, 4));
+        entity.energyPort().insert(1_000, false);
         entity.buffer().setStackInSlot(0, new ItemStack(Items.COBBLESTONE, 32));
         helper.runAtTickTime(25, () -> {
             DashboardDevice device = device(helper, entity);
@@ -100,9 +100,9 @@ public final class HomeCoreGameTests {
             check(helper, (int) metric(device, QuarryIds.AREA_WIDTH) == 4 && (int) metric(device, QuarryIds.AREA_LENGTH) == 4, "Area metrics");
             check(helper, (int) metric(device, QuarryIds.MINING_HEAD_LEVEL) == 3 && (double) metric(device, QuarryIds.MINING_SPEED) == 3.0,
                     "Head metrics");
-            check(helper, ((Percentage) metric(device, QuarryIds.FUEL_PERCENTAGE)).value() == 20, "Fuel metric: 6400/32000");
-            check(helper, ((Duration) metric(device, QuarryIds.RUNTIME_REMAINING)).ticks() == 6400, "Runtime metric");
-            check(helper, (long) metric(device, QuarryIds.ESTIMATED_BLOCKS) == 106, "Estimate metric");
+            check(helper, ((Percentage) metric(device, QuarryIds.ENERGY_PERCENTAGE)).value() == 20, "Energy metric: 1000/5000 HE");
+            check(helper, ((Duration) metric(device, QuarryIds.RUNTIME_REMAINING)).ticks() == 600, "Runtime metric: 10 blocks of 60 ticks");
+            check(helper, (long) metric(device, QuarryIds.ESTIMATED_BLOCKS) == 10, "Estimate metric: 1000 / 100 HE");
             check(helper, (long) metric(device, QuarryIds.OUTPUT_ITEM_COUNT) == 32, "Output items metric");
             check(helper, device.status().state() == DeviceStatus.State.ONLINE && device.status().message().isPresent(),
                     "A loaded quarry must be ONLINE (HomeCore requires ONLINE for actions) with its state as message");
@@ -119,7 +119,7 @@ public final class HomeCoreGameTests {
         QuarryControllerBlockEntity entity = quarry(helper);
         for (int x = 3; x <= 6; x++) for (int z = 0; z <= 3; z++) helper.setBlock(new BlockPos(x, 1, z), Blocks.STONE);
         entity.headSlot().setStackInSlot(0, new ItemStack(QuarryRegistries.MINING_HEAD_I.get()));
-        entity.fuelSlot().setStackInSlot(0, new ItemStack(Items.COAL, 4));
+        entity.energyPort().insert(1_000, false);
         FakePlayer owner = player(helper, "quarry_owner");
         FakePlayer stranger = player(helper, "quarry_stranger");
         var server = helper.getLevel().getServer();
@@ -156,12 +156,12 @@ public final class HomeCoreGameTests {
         });
     }
 
-    /** Events are published on transitions only: one fuel_low per crossing, re-armed by refuelling. */
+    /** Events are published on transitions only: one energy_low per crossing, re-armed by recharging. */
     @GameTest(template = "empty", batch = "homecore_d", timeoutTicks = 200)
     public static void eventsOnTransitionsOnly(GameTestHelper helper) {
         QuarryControllerBlockEntity entity = quarry(helper);
         entity.headSlot().setStackInSlot(0, new ItemStack(QuarryRegistries.MINING_HEAD_I.get()));
-        entity.fuelSlot().setStackInSlot(0, new ItemStack(Items.COAL, 20));
+        entity.energyPort().insert(Long.MAX_VALUE, false);
         List<DeviceEvent> received = new CopyOnWriteArrayList<>();
         var subscription = DashboardAPI.events(helper.getLevel().getServer()).subscribe(event -> {
             if (event.source().equals(entity.deviceId())) received.add(event);
@@ -169,18 +169,19 @@ public final class HomeCoreGameTests {
         helper.runAtTickTime(5, () -> {
             check(helper, entity.start() && entity.pause(), "Start then pause");
         });
-        helper.runAtTickTime(10, () -> entity.fuelSlot().setStackInSlot(0, new ItemStack(Items.COAL, 2)));
-        helper.runAtTickTime(40, () -> entity.fuelSlot().setStackInSlot(0, new ItemStack(Items.COAL, 1)));
-        helper.runAtTickTime(70, () -> entity.fuelSlot().setStackInSlot(0, new ItemStack(Items.COAL, 20)));
-        helper.runAtTickTime(100, () -> entity.fuelSlot().setStackInSlot(0, new ItemStack(Items.COAL, 1)));
+        // Charge of the 5000 HE buffer: 10 %, 5 %, full again (re-arms), 5 %.
+        helper.runAtTickTime(10, () -> entity.energyPort().setStored(500));
+        helper.runAtTickTime(40, () -> entity.energyPort().setStored(250));
+        helper.runAtTickTime(70, () -> entity.energyPort().setStored(5_000));
+        helper.runAtTickTime(100, () -> entity.energyPort().setStored(250));
         helper.runAtTickTime(110, () -> helper.setBlock(QUARRY.south(), Blocks.DROPPER));
         helper.runAtTickTime(140, () -> helper.setBlock(QUARRY.south(), Blocks.AIR));
         helper.runAtTickTime(170, () -> {
             subscription.close();
-            long fuelLow = received.stream().filter(event -> event.type().equals(QuarryIds.FUEL_LOW)).count();
+            long energyLow = received.stream().filter(event -> event.type().equals(QuarryIds.ENERGY_LOW)).count();
             check(helper, received.stream().anyMatch(event -> event.type().equals(QuarryIds.STARTED)), "No started event");
             check(helper, received.stream().anyMatch(event -> event.type().equals(QuarryIds.PAUSED)), "No paused event");
-            check(helper, fuelLow == 2, "Expected exactly 2 fuel_low events (crossing, re-arm, crossing), got " + fuelLow);
+            check(helper, energyLow == 2, "Expected exactly 2 energy_low events (crossing, re-arm, crossing), got " + energyLow);
             check(helper, received.stream().filter(event -> event.type().equals(QuarryIds.STORAGE_CONNECTED_EVENT)).count() == 1
                     && received.stream().filter(event -> event.type().equals(QuarryIds.STORAGE_DISCONNECTED)).count() == 1,
                     "storage_connected / storage_disconnected must fire once each");
@@ -195,7 +196,7 @@ public final class HomeCoreGameTests {
         QuarryControllerBlockEntity entity = quarry(helper);
         helper.setBlock(new BlockPos(3, 1, 0), Blocks.STONE);
         entity.headSlot().setStackInSlot(0, new ItemStack(QuarryRegistries.MINING_HEAD_III.get()));
-        entity.fuelSlot().setStackInSlot(0, new ItemStack(Items.COAL, 4));
+        entity.energyPort().insert(1_000, false);
         for (int slot = 0; slot < QuarryControllerBlockEntity.BUFFER_SLOTS; slot++) entity.buffer().setStackInSlot(slot, new ItemStack(Items.DIRT, 64));
         List<DeviceEvent> received = new CopyOnWriteArrayList<>();
         var subscription = DashboardAPI.events(helper.getLevel().getServer()).subscribe(event -> {

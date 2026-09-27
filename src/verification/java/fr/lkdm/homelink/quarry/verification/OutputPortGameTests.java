@@ -135,7 +135,7 @@ public final class OutputPortGameTests {
         entity.setCorners(helper.absolutePos(target), helper.absolutePos(last));
         entity.setStopY(helper.absolutePos(target).getY());
         entity.headSlot().setStackInSlot(0, new ItemStack(QuarryRegistries.MINING_HEAD_III.get()));
-        entity.fuelSlot().setStackInSlot(0, new ItemStack(Items.COAL));
+        entity.energyPort().insert(1_000, false);
         for (int slot = 0; slot < QuarryControllerBlockEntity.BUFFER_SLOTS; slot++) entity.buffer().setStackInSlot(slot, new ItemStack(Items.DIRT, 64));
         check(helper, entity.start(), "Start");
         helper.runAtTickTime(10, () -> {

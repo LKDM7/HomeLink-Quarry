@@ -1,6 +1,7 @@
 package fr.lkdm.homelink.quarry.verification;
 
 import static fr.lkdm.homelink.quarry.verification.FoundationGameTests.check;
+import static fr.lkdm.homelink.quarry.verification.MiningGameTests.FILL;
 import static fr.lkdm.homelink.quarry.verification.MiningGameTests.quarry;
 
 import fr.lkdm.homelink.quarry.block.DrillLightBlock;
@@ -27,7 +28,7 @@ public final class DrillLightGameTests {
         helper.setBlock(a, Blocks.STONE);
         helper.setBlock(b, Blocks.STONE);
         QuarryControllerBlockEntity entity = quarry(helper, new BlockPos(0, 1, 0), a, b, QuarryRegistries.MINING_HEAD_I.get(),
-                new ItemStack(Items.COAL));
+                FILL);
         check(helper, entity.start(), "Start");
         helper.runAtTickTime(20, () -> {
             BlockPos lit = helper.absolutePos(a.above());
@@ -60,7 +61,7 @@ public final class DrillLightGameTests {
         helper.setBlock(target, Blocks.STONE);
         helper.setBlock(target.above(), Blocks.GLASS);
         QuarryControllerBlockEntity entity = quarry(helper, new BlockPos(0, 1, 0), target, target, QuarryRegistries.MINING_HEAD_I.get(),
-                new ItemStack(Items.COAL));
+                FILL);
         check(helper, entity.start(), "Start");
         helper.runAtTickTime(20, () -> {
             helper.assertBlockPresent(Blocks.GLASS, target.above());

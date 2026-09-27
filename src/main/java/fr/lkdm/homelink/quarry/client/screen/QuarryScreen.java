@@ -28,7 +28,7 @@ import org.lwjgl.glfw.GLFW;
 /**
  * Quarry Controller screen in the HomeLink Dashboard style of HomeLink Farm: header with status light,
  * rename field, read-only status lines in a recessed panel and command buttons at the bottom.
- * Views: STATUS, AREA (depth and preview options), OUTPUT (head, fuel, buffer) and the help page.
+ * Views: STATUS, AREA (depth and preview options), OUTPUT (head, energy, buffer) and the help page.
  * Values are for display only; the server validates every command.
  */
 public class QuarryScreen extends AbstractContainerScreen<QuarryMenu> {
@@ -218,7 +218,7 @@ public class QuarryScreen extends AbstractContainerScreen<QuarryMenu> {
 
     private static boolean working(QuarryStatus status) {
         return switch (status) {
-            case MINING, NO_FUEL, OUTPUT_FULL, BLOCKED -> true;
+            case MINING, NO_POWER, OUTPUT_FULL, BLOCKED -> true;
             default -> false;
         };
     }
@@ -299,9 +299,9 @@ public class QuarryScreen extends AbstractContainerScreen<QuarryMenu> {
                 ? line("screen.homelink_quarry.head", Component.translatable("screen.homelink_quarry.head_value",
                         MiningHeadTier.values()[head - 1].roman(), MiningHeadTier.values()[head - 1].secondsPerBlock()), TEXT)
                 : line("screen.homelink_quarry.head", Component.translatable("screen.homelink_quarry.none"), WARN));
-        float fuel = menu.fuelPercent() / 100F;
-        lines.add(new Line(Component.translatable("screen.homelink_quarry.fuel"), percent(fuel),
-                menu.runtimeSeconds() == 0 ? BAD : menu.fuelPercent() <= 15 ? WARN : TEXT, fuel));
+        float energy = menu.energyPercent() / 100F;
+        lines.add(new Line(Component.translatable("screen.homelink_quarry.energy"), percent(energy),
+                menu.energyPercent() == 0 ? BAD : menu.energyPercent() <= 15 ? WARN : TEXT, energy));
         Component runtime = runtime(menu.runtimeSeconds());
         if (head > 0 && menu.runtimeSeconds() > 0)
             runtime = Component.translatable("screen.homelink_quarry.runtime_value", runtime, number(menu.estimatedBlocks()));
@@ -377,7 +377,8 @@ public class QuarryScreen extends AbstractContainerScreen<QuarryMenu> {
         }
         if (view == View.OUTPUT) {
             graphics.drawString(font, Component.translatable("screen.homelink_quarry.head"), QuarryMenu.HEAD_X + 22, QuarryMenu.HEAD_Y + 4, LABEL, false);
-            graphics.drawString(font, Component.translatable("screen.homelink_quarry.fuel"), QuarryMenu.FUEL_X + 22, QuarryMenu.FUEL_Y + 4, LABEL, false);
+            graphics.drawString(font, Component.translatable("screen.homelink_quarry.energy_value", menu.energyPercent()),
+                    QuarryMenu.ENERGY_X, QuarryMenu.ENERGY_Y + 4, menu.energyPercent() == 0 ? BAD : LABEL, false);
             String buffer = menu.bufferUsed() + " / " + QuarryControllerBlockEntity.BUFFER_SLOTS;
             graphics.drawString(font, Component.translatable("screen.homelink_quarry.buffer"), QuarryMenu.BUFFER_X, QuarryMenu.BUFFER_Y - 11, LABEL, false);
             graphics.drawString(font, buffer, QuarryMenu.BUFFER_X + 162 - font.width(buffer), QuarryMenu.BUFFER_Y - 11,

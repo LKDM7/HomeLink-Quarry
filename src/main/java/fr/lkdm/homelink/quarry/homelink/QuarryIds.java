@@ -21,9 +21,9 @@ public final class QuarryIds {
     public static final ResourceLocation BLOCKS_REMAINING = id("blocks_remaining");
     public static final ResourceLocation MINING_HEAD_LEVEL = id("mining_head_level");
     public static final ResourceLocation MINING_SPEED = id("mining_speed");
-    public static final ResourceLocation FUEL_PERCENTAGE = id("fuel_percentage");
+    public static final ResourceLocation ENERGY_PERCENTAGE = id("energy_percentage");
     public static final ResourceLocation RUNTIME_REMAINING = id("runtime_remaining");
-    public static final ResourceLocation ESTIMATED_BLOCKS = id("estimated_blocks_with_fuel");
+    public static final ResourceLocation ESTIMATED_BLOCKS = id("estimated_blocks_with_energy");
     public static final ResourceLocation OUTPUT_USAGE = id("output_usage");
     public static final ResourceLocation OUTPUT_ITEM_COUNT = id("output_item_count");
     public static final ResourceLocation STORAGE_CONNECTED = id("storage_connected");
@@ -38,15 +38,15 @@ public final class QuarryIds {
     public static final ResourceLocation RESUMED = id("resumed");
     public static final ResourceLocation STOPPED = id("stopped");
     public static final ResourceLocation FINISHED = id("finished");
-    public static final ResourceLocation FUEL_LOW = id("fuel_low");
-    public static final ResourceLocation FUEL_EMPTY = id("fuel_empty");
+    public static final ResourceLocation ENERGY_LOW = id("energy_low");
+    public static final ResourceLocation NO_POWER = id("no_power");
     public static final ResourceLocation OUTPUT_FULL = id("output_full");
     public static final ResourceLocation OUTPUT_AVAILABLE = id("output_available");
     public static final ResourceLocation STORAGE_CONNECTED_EVENT = id("storage_connected");
     public static final ResourceLocation STORAGE_DISCONNECTED = id("storage_disconnected");
     public static final ResourceLocation BLOCKED = id("blocked");
 
-    public static final Set<ResourceLocation> EVENTS = Set.of(STARTED, PAUSED, RESUMED, STOPPED, FINISHED, FUEL_LOW, FUEL_EMPTY,
+    public static final Set<ResourceLocation> EVENTS = Set.of(STARTED, PAUSED, RESUMED, STOPPED, FINISHED, ENERGY_LOW, NO_POWER,
             OUTPUT_FULL, OUTPUT_AVAILABLE, STORAGE_CONNECTED_EVENT, STORAGE_DISCONNECTED, BLOCKED);
 
     private QuarryIds() {
