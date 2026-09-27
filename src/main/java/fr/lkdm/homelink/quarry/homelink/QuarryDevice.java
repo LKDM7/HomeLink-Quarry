@@ -12,6 +12,8 @@ import fr.lkdm.homecore.api.metric.MetricTypes;
 import fr.lkdm.homecore.api.metric.Percentage;
 import fr.lkdm.homecore.api.metric.Unit;
 import fr.lkdm.homecore.api.metric.UpdatePolicy;
+import fr.lkdm.homecore.api.network.HomeNetwork;
+import fr.lkdm.homecore.api.network.NetworkMember;
 import fr.lkdm.homecore.api.security.Permission;
 import fr.lkdm.homelink.quarry.blockentity.QuarryControllerBlockEntity;
 import fr.lkdm.homelink.quarry.config.QuarryConfig;
@@ -32,6 +34,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 
 /**
@@ -42,7 +45,7 @@ import net.minecraft.world.level.Level;
  * carries its precise state in the message and in the {@code status} metric; waiting states are also
  * announced as events. A fault (ERROR) maps to ERROR and an unloaded quarry is OFFLINE.</p>
  */
-public final class QuarryDevice implements DashboardDevice {
+public final class QuarryDevice implements DashboardDevice, NetworkMember {
     /** energy_low re-arms once the charge is back this many points above the threshold. */
     public static final int ENERGY_HYSTERESIS = 10;
 
@@ -233,6 +236,14 @@ public final class QuarryDevice implements DashboardDevice {
     @Override public UUID id() { return identity; }
     @Override public ResourceLocation deviceType() { return QuarryIds.DEVICE_TYPE; }
     @Override public Component displayName() { return quarry.displayName().copy(); }
+
+    // NetworkMember: lets a dashboard move the quarry between networks while its recorded binding stays in step.
+    @Override public Optional<UUID> homeNetwork() { return quarry.homeNetwork(); }
+    @Override public Optional<UUID> owner() { return quarry.owner(); }
+    @Override public boolean canConfigure(ServerPlayer player) { return QuarryAccess.canConfigure(player, quarry); }
+    @Override public void homeNetworkChanged(Optional<HomeNetwork> network) {
+        network.ifPresentOrElse(value -> quarry.setHomeNetwork(value.id(), value.name()), quarry::clearHomeNetwork);
+    }
     @Override public List<DeviceMetric<?>> metrics() { return metrics; }
     @Override public List<DeviceAction<?>> actions() { return actions; }
     @Override public Set<ResourceLocation> eventTypes() { return QuarryIds.EVENTS; }

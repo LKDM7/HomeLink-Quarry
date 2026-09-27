@@ -16,6 +16,7 @@ import fr.lkdm.homelink.quarry.homelink.QuarryIds;
 import fr.lkdm.homelink.quarry.quarry.QuarryStatus;
 import fr.lkdm.homelink.quarry.registry.QuarryRegistries;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import net.minecraft.core.BlockPos;
@@ -83,6 +84,37 @@ public final class HomeCoreGameTests {
             copy.loadWithComponents(entity.saveWithoutMetadata(registries), registries);
             check(helper, copy.deviceId().equals(entity.deviceId()), "UUID changed on reload");
             helper.succeed();
+        });
+    }
+
+    /** The Dashboard moves machines through HomeCore's NetworkMember contract; the quarry must record the same binding. */
+    @GameTest(template = "empty", batch = "homecore_member", timeoutTicks = 60)
+    public static void dashboardBindingKeepsTheQuarryInStep(GameTestHelper helper) {
+        QuarryControllerBlockEntity entity = quarry(helper);
+        FakePlayer owner = player(helper, "quarry_member_owner");
+        FakePlayer stranger = player(helper, "quarry_member_stranger");
+        entity.setOwner(owner.getUUID(), "quarry_member_owner");
+        entity.setCustomName("Carrière sud");
+        var networks = DashboardAPI.networks(helper.getLevel().getServer());
+        UUID first = networks.createNetwork("Base", owner.getUUID()).id();
+        UUID second = networks.createNetwork("Atelier", owner.getUUID()).id();
+        helper.runAtTickTime(5, () -> {
+            try {
+                DashboardDevice device = device(helper, entity);
+                check(helper, device instanceof fr.lkdm.homecore.api.network.NetworkMember, "The quarry must implement NetworkMember");
+                check(helper, device.displayName().getString().equals("Carrière sud"), "The custom name must reach HomeCore");
+                check(helper, DashboardAPI.bindDevice(stranger, device, Optional.of(first)) == fr.lkdm.homecore.api.network.NetworkMember.BindResult.DENIED,
+                        "A stranger moved someone else's quarry");
+                check(helper, DashboardAPI.bindDevice(owner, device, Optional.of(first)) == fr.lkdm.homecore.api.network.NetworkMember.BindResult.BOUND
+                        && entity.homeNetwork().equals(Optional.of(first)) && entity.homeNetworkName().equals("Base"), "Owner binding not recorded");
+                check(helper, DashboardAPI.bindDevice(owner, device, Optional.of(second)) == fr.lkdm.homecore.api.network.NetworkMember.BindResult.BOUND
+                        && !networks.getDevices(first).contains(entity.deviceId()) && networks.getDevices(second).contains(entity.deviceId())
+                        && entity.homeNetwork().equals(Optional.of(second)), "Moving must leave the previous network");
+                helper.succeed();
+            } finally {
+                networks.deleteNetwork(first);
+                networks.deleteNetwork(second);
+            }
         });
     }
 

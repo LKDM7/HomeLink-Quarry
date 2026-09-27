@@ -1,6 +1,6 @@
-# HomeLink Quarry 1.0.0
+# HomeLink Quarry 1.1.0
 
-Minecraft 1.21.1 · NeoForge 21.1.251 · Java 21 · HomeCore 1.7.0.
+Minecraft 1.21.1 · NeoForge 21.1.251 · Java 21 · HomeCore 1.9.0 · HomeLink Energy 0.2.0.
 
 HomeLink Quarry ajoute une carrière physique : une Tête de forage visible se déplace
 au-dessus de la zone et mine **un bloc à la fois**, couche par couche, du Départ Y
@@ -23,8 +23,10 @@ Des repères I / II / III en relief permettent aussi de reconnaître chaque nive
 
 ## Installation
 
-Installer `homelink_quarry-1.0.0.jar` et `homecore-1.7.0.jar` dans le dossier `mods`
+Installer `homelink_quarry-1.1.0.jar`, `homecore-1.9.0.jar` et `homelink_energy-0.2.0.jar` dans le dossier `mods`
 du client et du serveur NeoForge. HomeLink Storage est facultatif.
+
+La Quarry implémente `NetworkMember` (HomeCore 1.9.0) : le Dashboard peut la lister dans sa zone radio et l’ajouter à un réseau. Son rattachement et son nom personnalisé restent les mêmes que dans son propre écran.
 
 ## Prise en main
 
