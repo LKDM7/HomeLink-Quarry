@@ -1,6 +1,6 @@
 # HomeLink Quarry et HomeCore
 
-HomeLink Quarry n'utilise que l'API publique `fr.lkdm.homecore.api` de HomeCore 1.10.0
+HomeLink Quarry n'utilise que l'API publique `fr.lkdm.homecore.api` de HomeCore 1.11.0
 (API 1.6.0) et ne recrée aucune classe HomeCore.
 
 ## Appareil
@@ -49,6 +49,10 @@ l'appartenance au réseau, la permission, la limite de débit et la disponibilit
 revérifie ensuite son propre état et répond `FAILED` avec une explication quand l'action
 n'a pas de sens (par exemple Pause sur une Quarry arrêtée). L'aperçu 3D reste une préférence
 locale du joueur et n'est pas une action serveur.
+
+La Quarry implémente aussi `Switchable` et `Renamable` : HomeCore ajoute les actions
+standard `homecore:power` (toggle, CONTROL ; éteindre = Pause, allumer = Resume ou Start)
+et `homecore:rename` (texte, CONFIGURE ; même nettoyage que l'écran de la Quarry).
 
 ## Événements (sur transition uniquement)
 

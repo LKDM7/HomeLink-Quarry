@@ -77,7 +77,8 @@ public final class HomeCoreGameTests {
                     QuarryIds.STORAGE_CONNECTED)) {
                 check(helper, schema.metrics().stream().anyMatch(metric -> metric.id().equals(id)), "Missing metric " + id);
             }
-            check(helper, schema.actions().size() == 4 && schema.events().containsAll(QuarryIds.EVENTS), "Actions or events missing");
+            check(helper, schema.actions().size() == 6 && schema.actions().stream().anyMatch(action -> action.id().equals(fr.lkdm.homecore.api.action.StandardActions.POWER))
+                    && schema.actions().stream().anyMatch(action -> action.id().equals(fr.lkdm.homecore.api.action.StandardActions.RENAME)) && schema.events().containsAll(QuarryIds.EVENTS), "Actions or events missing");
             // The identity survives a save/load.
             var registries = helper.getLevel().registryAccess();
             QuarryControllerBlockEntity copy = new QuarryControllerBlockEntity(entity.getBlockPos(), entity.getBlockState());

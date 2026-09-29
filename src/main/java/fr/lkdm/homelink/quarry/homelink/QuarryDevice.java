@@ -5,6 +5,8 @@ import fr.lkdm.homecore.api.action.DeviceAction;
 import fr.lkdm.homecore.api.device.DashboardDevice;
 import fr.lkdm.homecore.api.device.DeviceSchema;
 import fr.lkdm.homecore.api.device.DeviceStatus;
+import fr.lkdm.homecore.api.device.Renamable;
+import fr.lkdm.homecore.api.device.Switchable;
 import fr.lkdm.homecore.api.event.DeviceEvent;
 import fr.lkdm.homecore.api.metric.DeviceMetric;
 import fr.lkdm.homecore.api.metric.Duration;
@@ -45,7 +47,7 @@ import net.minecraft.world.level.Level;
  * carries its precise state in the message and in the {@code status} metric; waiting states are also
  * announced as events. A fault (ERROR) maps to ERROR and an unloaded quarry is OFFLINE.</p>
  */
-public final class QuarryDevice implements DashboardDevice, NetworkMember {
+public final class QuarryDevice implements DashboardDevice, NetworkMember, Renamable, Switchable {
     /** energy_low re-arms once the charge is back this many points above the threshold. */
     public static final int ENERGY_HYSTERESIS = 10;
 
@@ -236,6 +238,17 @@ public final class QuarryDevice implements DashboardDevice, NetworkMember {
     @Override public UUID id() { return identity; }
     @Override public ResourceLocation deviceType() { return QuarryIds.DEVICE_TYPE; }
     @Override public Component displayName() { return quarry.displayName().copy(); }
+    @Override public ActionResult rename(String name) { quarry.setCustomName(name); return ActionResult.success(); }
+
+    /** On while a job runs unpaused; switching off pauses it so that switching on resumes exactly there. */
+    @Override public boolean powered() { return quarry.running() && !quarry.paused() && !quarry.finished(); }
+    @Override public ActionResult setPowered(boolean powered) {
+        if (powered == powered()) return ActionResult.success();
+        if (!powered) return quarry.pause() ? ActionResult.success() : ActionResult.of(ActionResult.Code.FAILED, notNow("pause"));
+        if (quarry.running() && quarry.paused()) return quarry.resume() ? ActionResult.success() : ActionResult.of(ActionResult.Code.FAILED, notNow("resume"));
+        return quarry.start() ? ActionResult.success() : ActionResult.of(ActionResult.Code.FAILED,
+                Component.translatable("screen.homelink_quarry.cannot_start", Component.translatable(quarry.status().key())));
+    }
 
     // NetworkMember: lets a dashboard move the quarry between networks while its recorded binding stays in step.
     @Override public Optional<UUID> homeNetwork() { return quarry.homeNetwork(); }

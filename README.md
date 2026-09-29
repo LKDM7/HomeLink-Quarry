@@ -1,6 +1,6 @@
-# HomeLink Quarry 1.2.0
+# HomeLink Quarry 1.3.0
 
-Minecraft 1.21.1 · NeoForge 21.1.251 · Java 21 · HomeCore 1.10.0 · HomeLink Energy 0.2.2.
+Minecraft 1.21.1 · NeoForge 21.1.251 · Java 21 · HomeCore 1.11.0 · HomeLink Energy 0.3.0.
 
 HomeLink Quarry ajoute une carrière physique : une Tête de forage visible se déplace
 au-dessus de la zone et mine **un bloc à la fois**, couche par couche, du Départ Y
@@ -22,10 +22,12 @@ Des repères I / II / III en relief permettent aussi de reconnaître chaque nive
 
 ## Installation
 
-Installer `homelink_quarry-1.2.0.jar`, `homecore-1.10.0.jar` et `homelink_energy-0.2.2.jar` dans le dossier `mods`
+Installer `homelink_quarry-1.3.0.jar`, `homecore-1.11.0.jar` et `homelink_energy-0.3.0.jar` dans le dossier `mods`
 du client et du serveur NeoForge. HomeLink Storage est facultatif.
 
 La Quarry implémente `NetworkMember` (HomeCore 1.10.0) : le Dashboard peut la lister dans sa zone radio et l’ajouter à un réseau. Son rattachement et son nom personnalisé restent les mêmes que dans son propre écran.
+
+Depuis l’écran Actions du Dashboard, la Quarry s’allume et s’éteint (`Switchable`) et se renomme (`Renamable`, HomeCore 1.11.0). Éteindre met le chantier en pause ; rallumer le reprend exactement au même endroit, ou le démarre s’il était arrêté.
 
 ## Prise en main
 
@@ -106,7 +108,7 @@ par tick au plus), `quarryTransferInterval` (20 ticks), `quarryEnergyLowThreshol
 
 ## Construire et vérifier
 
-Cloner HomeCore 1.10.0 et HomeLink Energy 0.2.2 à côté de ce projet (`../HomeCore` et `../HomeLinkEnergy`), puis activer les composites locaux :
+Cloner HomeCore 1.11.0 et HomeLink Energy 0.3.0 à côté de ce projet (`../HomeCore` et `../HomeLinkEnergy`), puis activer les composites locaux :
 
 ```powershell
 ./gradlew.bat -PuseLocalDependencies=true build              # compilation + vérification du JAR publié
