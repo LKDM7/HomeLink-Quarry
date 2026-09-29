@@ -1,6 +1,6 @@
-# HomeLink Quarry 1.1.0
+# HomeLink Quarry 1.2.0
 
-Minecraft 1.21.1 · NeoForge 21.1.251 · Java 21 · HomeCore 1.9.0 · HomeLink Energy 0.2.0.
+Minecraft 1.21.1 · NeoForge 21.1.251 · Java 21 · HomeCore 1.10.0 · HomeLink Energy 0.2.2.
 
 HomeLink Quarry ajoute une carrière physique : une Tête de forage visible se déplace
 au-dessus de la zone et mine **un bloc à la fois**, couche par couche, du Départ Y
@@ -13,8 +13,7 @@ jusqu'à l'Arrêt Y. Les drops passent tous par un tampon de 27 emplacements.
 | Quarry III | 32×32 | | Tête III | 1 bloc / 3 s (60 ticks) |
 
 Le niveau de la Quarry fixe **seulement la zone**, la Tête **seulement la vitesse** :
-les 9 combinaisons sont possibles. Les Têtes n'ont aucune durabilité. Le carburant fixe
-**seulement l'autonomie**, jamais la vitesse.
+les 9 combinaisons sont possibles. Les Têtes n'ont aucune durabilité. La Quarry fonctionne exclusivement en **HomeLink Energy (HE)**. L'énergie fixe l'autonomie, jamais la vitesse : 100 HE par bloc par défaut, avec un tampon égal à 50 fois le coût par bloc, soit 5 000 HE par défaut. Une Tête plus rapide demande le même total d'énergie en moins de temps.
 
 Les modèles 3D partagent une finition industrielle cuivre et acier : châssis simple au
 niveau I, circuits de refroidissement et renforts au II, épaules blindées au III.
@@ -23,19 +22,17 @@ Des repères I / II / III en relief permettent aussi de reconnaître chaque nive
 
 ## Installation
 
-Installer `homelink_quarry-1.1.0.jar`, `homecore-1.9.0.jar` et `homelink_energy-0.2.0.jar` dans le dossier `mods`
+Installer `homelink_quarry-1.2.0.jar`, `homecore-1.10.0.jar` et `homelink_energy-0.2.2.jar` dans le dossier `mods`
 du client et du serveur NeoForge. HomeLink Storage est facultatif.
 
-La Quarry implémente `NetworkMember` (HomeCore 1.9.0) : le Dashboard peut la lister dans sa zone radio et l’ajouter à un réseau. Son rattachement et son nom personnalisé restent les mêmes que dans son propre écran.
+La Quarry implémente `NetworkMember` (HomeCore 1.10.0) : le Dashboard peut la lister dans sa zone radio et l’ajouter à un réseau. Son rattachement et son nom personnalisé restent les mêmes que dans son propre écran.
 
 ## Prise en main
 
 1. Poser une Quarry : son avant (écran) regarde le joueur, son port de sortie est à l'arrière.
 2. Avec un **Marqueur de Quarry** : clic droit sur un bloc = Coin A, accroupi + clic droit =
    Coin B, puis clic droit sur la Quarry pour appliquer. Le Départ Y est le coin le plus haut.
-3. Ouvrir la Quarry : vue **Sortie** pour installer la Tête et le carburant (charbon, charbon
-   de bois, bloc de charbon, seau de lave, tout combustible de four ; un entonnoir au-dessus
-   fonctionne aussi).
+3. Ouvrir la Quarry : vue **Sortie** pour installer la Tête. Raccorder une alimentation HomeLink Energy sur une face de la machine : le port HE est accessible sur les six faces. Sans énergie, elle attend (`NO_POWER`) et reprend lorsque l'alimentation revient. Aucun combustible n'est accepté.
 4. Vue **Zone** : régler l'Arrêt Y (Maj = pas de 10, « Fond » = bas du monde), puis
    **Aperçu** pour voir le volume dans le monde. Une zone invalide est rouge et ne démarre pas.
 5. **Démarrer**. **Pause** fige tout ; **Reprendre** continue exactement au même endroit.
@@ -47,8 +44,7 @@ Le bouton `?` de l'écran contient le guide complet (FR/EN).
 ## Sortie et HomeLink Storage
 
 Le tampon se vide dans une **entrée compatible** posée contre l'arrière de la Quarry
-(tag de bloc `homelink_quarry:item_inputs`, qui contient le Storage Deposit de HomeLink
-Storage quand ce mod est installé ; aucune dépendance de code). Pas de clic, pas de
+(capability HomeCore `ItemApi.BLOCK`, de type `INPUT` ou `BOTH`, notamment le Storage Deposit ; aucune dépendance de code à Storage). Pas de clic, pas de
 configuration : la connexion est automatique, avec voyant, raccord cuivre, étincelles et
 son. Une pile par seconde est transférée ; seul ce que l'entrée accepte réellement est
 retiré du tampon. Un simple coffre derrière ne reçoit rien ; un entonnoir **sous** la Quarry
@@ -105,16 +101,16 @@ relie la Quarry III au réseau HomeLink.
 
 Serveur (`homelink_quarry-server.toml`, par monde) : `quarryBlacklist`,
 `quarryMaxControllerDistance` (64), `quarryPositionsPerTick` (64 positions vides passées
-par tick au plus), `quarryTransferInterval` (20 ticks), `quarryFuelLowThreshold` (15 %),
+par tick au plus), `quarryTransferInterval` (20 ticks), `quarryEnergyLowThreshold` (15 %), `quarryEnergyPerBlock` (100 HE),
 `quarryMineContainers` (true). Client : `quarryPreviewRenderDistance` (64).
 
 ## Construire et vérifier
 
-Cloner HomeCore à côté de ce projet (`../HomeCore`, version 1.7.0), puis :
+Cloner HomeCore 1.10.0 et HomeLink Energy 0.2.2 à côté de ce projet (`../HomeCore` et `../HomeLinkEnergy`), puis activer les composites locaux :
 
 ```powershell
-./gradlew.bat build              # compilation + vérification du JAR publié
-./gradlew.bat runGameTestServer  # 41 GameTests serveur
+./gradlew.bat -PuseLocalDependencies=true build              # compilation + vérification du JAR publié
+./gradlew.bat -PuseLocalDependencies=true runGameTestServer  # GameTests serveur
 ./gradlew.bat runSmoke           # vérification en jeu (client réel, captures d'écran)
 ./gradlew.bat -PwithStorage runSmoke   # idem avec le vrai Storage Deposit (../HomeLink Storage)
 ./gradlew.bat releaseBundle      # build/release : JAR, HomeCore requis, README, LICENSE

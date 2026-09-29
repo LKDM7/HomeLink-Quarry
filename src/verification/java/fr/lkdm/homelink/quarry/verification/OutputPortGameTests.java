@@ -22,9 +22,9 @@ import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 /**
- * Prompt 2A: ITEM_OUTPUT port, automatic connection and the transactional buffer transfer.
- * HomeLink Storage is not loaded here: the validation data pack adds the vanilla dropper to
- * {@code homelink_quarry:item_inputs} to stand in for the Storage Deposit.
+ * Port OUTPUT, connexion automatique et transfert du tampon sans perte.
+ * Ce test isolé utilise un dropper auquel le mod de validation attribue un port INPUT.
+ * Les tests inter-mods du harnais HomeCore chargent le vrai Storage Deposit.
  */
 @GameTestHolder(QuarryValidation.MOD_ID)
 @PrefixGameTestTemplate(false)

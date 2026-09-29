@@ -1,28 +1,21 @@
 package fr.lkdm.homelink.quarry.quarry;
 
 import com.mojang.logging.LogUtils;
-import fr.lkdm.homelink.quarry.HomeLinkQuarry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 /**
- * ITEM_OUTPUT port on the back of the controller. A compatible ITEM_INPUT is any block of the tag
- * {@code homelink_quarry:item_inputs} placed directly behind (the HomeLink Storage Deposit when that
- * mod is installed, with no code dependency). It is reached through the face it shows to the quarry,
+ * OUTPUT port on the back of the controller. A compatible INPUT or BOTH HomeCore item port is
+ * placed directly behind (for example the HomeLink Storage Deposit). It is reached through the face it shows to the quarry,
  * so its own face rules apply; a plain chest behind the quarry receives nothing.
  */
 public final class QuarryOutputPort {
-    public static final TagKey<Block> ITEM_INPUTS = TagKey.create(Registries.BLOCK, HomeLinkQuarry.id("item_inputs"));
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private QuarryOutputPort() {
@@ -38,8 +31,9 @@ public final class QuarryOutputPort {
     public static IItemHandler input(ServerLevel level, BlockPos controller, Direction facing) {
         Direction back = portSide(facing);
         BlockPos pos = controller.relative(back);
-        if (!level.isLoaded(pos) || !level.getBlockState(pos).is(ITEM_INPUTS)) return null;
-        return level.getCapability(Capabilities.ItemHandler.BLOCK, pos, back.getOpposite());
+        if (!level.isLoaded(pos)) return null;
+        var input = level.getCapability(fr.lkdm.homecore.api.item.ItemApi.BLOCK, pos, back.getOpposite());
+        return input != null && input.type().canReceive() ? input : null;
     }
 
     /**

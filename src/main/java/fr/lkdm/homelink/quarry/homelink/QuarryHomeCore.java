@@ -70,27 +70,17 @@ public final class QuarryHomeCore {
      * server calls, so the player needs rights on the quarry AND MANAGE_NETWORK on the new and previous network.
      */
     public static BindResult bind(ServerPlayer player, QuarryControllerBlockEntity quarry, Optional<UUID> target) {
-        if (!QuarryAccess.canConfigure(player, quarry)) return BindResult.DENIED;
-        Optional<UUID> current = quarry.homeNetwork();
-        if (current.equals(target)) return BindResult.UNCHANGED;
-        var networks = DashboardAPI.networks(player.server);
-        Optional<HomeNetwork> destination = Optional.empty();
-        if (target.isPresent()) {
-            destination = networks.getNetwork(target.get());
-            if (destination.isEmpty()) return BindResult.UNKNOWN_NETWORK;
-            if (!DashboardAPI.hasPermission(player, target.get(), Permission.MANAGE_NETWORK)) return BindResult.DENIED;
-        }
-        if (current.isPresent() && networks.getNetwork(current.get()).isPresent()) {
-            if (!DashboardAPI.hasPermission(player, current.get(), Permission.MANAGE_NETWORK)) return BindResult.DENIED;
-            networks.removeDevice(current.get(), quarry.deviceId());
-        }
-        if (destination.isPresent()) {
-            networks.addDevice(destination.get().id(), quarry.deviceId());
-            quarry.setHomeNetwork(destination.get().id(), destination.get().name());
-            return BindResult.BOUND;
-        }
-        quarry.clearHomeNetwork();
-        return BindResult.UNBOUND;
+
+        var adapter = DashboardAPI.devices(player.server).get(quarry.deviceId())
+                .or(() -> DashboardAPI.providers().discover(quarry));
+        if (adapter.isEmpty()) return BindResult.DENIED;
+        return switch (DashboardAPI.bindDevice(player, adapter.get(), target)) {
+            case BOUND -> BindResult.BOUND;
+            case UNBOUND -> BindResult.UNBOUND;
+            case UNCHANGED -> BindResult.UNCHANGED;
+            case UNKNOWN_NETWORK -> BindResult.UNKNOWN_NETWORK;
+            case DENIED, NOT_SUPPORTED -> BindResult.DENIED;
+        };
     }
 
     /** The controller was destroyed: remove its identity from its network (trusted server call). */

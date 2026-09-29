@@ -234,7 +234,7 @@ public class QuarryControllerBlockEntity extends BlockEntity {
         }
     }
 
-    private Direction facing() {
+    public Direction facing() {
         return getBlockState().getValue(QuarryControllerBlock.FACING);
     }
 

@@ -33,7 +33,7 @@ import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
-/** Prompt 2B: the Quarry Controller as a real HomeCore device (identity, metrics, actions, events). */
+/** The Quarry Controller as a real HomeCore device (identity, metrics, actions, events). */
 @GameTestHolder(QuarryValidation.MOD_ID)
 @PrefixGameTestTemplate(false)
 public final class HomeCoreGameTests {

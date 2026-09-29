@@ -24,6 +24,9 @@ public final class HomeLinkQuarry {
         container.registerConfig(ModConfig.Type.SERVER, QuarryConfig.SERVER_SPEC);
         container.registerConfig(ModConfig.Type.CLIENT, QuarryConfig.CLIENT_SPEC);
         modBus.addListener((RegisterCapabilitiesEvent event) -> {
+            event.registerBlockEntity(fr.lkdm.homecore.api.item.ItemApi.BLOCK, QuarryRegistries.QUARRY_CONTROLLER.get(),
+                    (entity, side) -> side == null || side == fr.lkdm.homelink.quarry.quarry.QuarryOutputPort.portSide(entity.facing())
+                            ? fr.lkdm.homecore.api.item.ItemApi.of(entity.automation(), fr.lkdm.homecore.api.item.ItemPortType.OUTPUT) : null);
             event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, QuarryRegistries.QUARRY_CONTROLLER.get(), (entity, side) -> entity.automation());
             // The quarry runs on HomeLink Energy only: HE enters on every face.
             event.registerBlockEntity(fr.lkdm.homecore.api.energy.EnergyApi.BLOCK, QuarryRegistries.QUARRY_CONTROLLER.get(), (entity, side) -> entity.energyPort());

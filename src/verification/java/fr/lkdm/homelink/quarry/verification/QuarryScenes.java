@@ -44,7 +44,7 @@ final class QuarryScenes {
 
     private static final java.util.UUID[] NETWORK = new java.util.UUID[1];
 
-    /** Prompt 2B: HomeNetwork binding from the screen, then remote control through HomeCore's gateway. */
+    /** HomeNetwork binding from the screen, then remote control through HomeCore's gateway. */
     private static void homeCore(List<QuarrySmoke.Step> steps) {
         steps.add(server(player -> {
             NETWORK[0] = fr.lkdm.homecore.api.DashboardAPI.networks(player.server).createNetwork("Maison", player.getUUID()).id();
@@ -90,7 +90,7 @@ final class QuarryScenes {
         return fr.lkdm.homelink.quarry.client.QuarryPreview.get(client.level.dimension(), pos);
     }
 
-    /** Prompt 2A: the personal 3D preview, valid and invalid, layers, progress, target and distance. */
+    /** The personal 3D preview, valid and invalid, layers, progress, target and distance. */
     private static void preview(List<QuarrySmoke.Step> steps) {
         steps.add(server(player -> {
             var level = player.serverLevel();
@@ -176,7 +176,7 @@ final class QuarryScenes {
         steps.add(log("QUARRY_PREVIEW_CLIENT_OK"));
     }
 
-    /** Prompt 2A: ITEM_OUTPUT to a real Storage Deposit (or the dropper stand-in without HomeLink Storage). */
+    /** ITEM_OUTPUT to a real Storage Deposit (or the dropper stand-in without HomeLink Storage). */
     private static void outputPort(List<QuarrySmoke.Step> steps) {
         BlockPos behind = PREVIEW_QUARRY.south();
         boolean storage = Boolean.getBoolean("quarry.withStorage");
