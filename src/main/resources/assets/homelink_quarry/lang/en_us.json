@@ -155,5 +155,8 @@
   "metric.homelink_quarry.estimated_blocks_with_energy": "Estimated blocks with stored energy",
   "metric.homelink_quarry.output_usage": "Output usage",
   "metric.homelink_quarry.output_item_count": "Items in output",
-  "metric.homelink_quarry.storage_connected": "Storage output connected"
+  "metric.homelink_quarry.storage_connected": "Storage output connected",
+  "info.homelink_quarry.quarry": "Mines a zone layer by layer with a visible drilling head: up to 8×8 (I), 16×16 (II) or 32×32 (III). It runs on HomeLink Energy through any of its six faces; energy sets how long it runs, never how fast.\nMark the zone with a Quarry Marker, install a Mining Head, set the stop level, then Start. Pause resumes exactly where it stopped.\nIts 27-slot buffer empties into a compatible input behind it, such as a Storage Deposit. Bedrock, portals and blacklisted blocks are never mined, claims are checked on the owner's behalf, and chunks are never force-loaded.",
+  "info.homelink_quarry.mining_head": "Sets the drilling speed of a quarry: 1 block every 10 s (I), 6 s (II) or 3 s (III). It has no durability.\nHeads mine like a plain pickaxe, without Fortune or Silk Touch. Any head fits any quarry tier.",
+  "info.homelink_quarry.quarry_marker": "Marks the quarry zone: right-click a block for corner A, sneak-right-click for corner B, then right-click the quarry to apply. The start level is the higher corner."
 }

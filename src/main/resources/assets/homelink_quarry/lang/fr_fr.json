@@ -155,5 +155,8 @@
   "metric.homelink_quarry.estimated_blocks_with_energy": "Blocs estimés avec l'énergie stockée",
   "metric.homelink_quarry.output_usage": "Remplissage de la sortie",
   "metric.homelink_quarry.output_item_count": "Objets en sortie",
-  "metric.homelink_quarry.storage_connected": "Sortie Storage connectée"
+  "metric.homelink_quarry.storage_connected": "Sortie Storage connectée",
+  "info.homelink_quarry.quarry": "Mine une zone couche par couche avec une tête de forage visible : jusqu'à 8×8 (I), 16×16 (II) ou 32×32 (III). Elle fonctionne à l'énergie HomeLink par l'une de ses six faces ; l'énergie fixe sa durée de fonctionnement, jamais sa vitesse.\nMarquer la zone avec un Marqueur de Quarry, installer une Tête de forage, régler l'Arrêt Y, puis Démarrer. La pause reprend exactement au même endroit.\nSon tampon de 27 emplacements se vide dans une entrée compatible posée derrière, comme un Storage Deposit. Bedrock, portails et blocs en liste noire ne sont jamais minés, les protections sont vérifiées au nom du propriétaire, et aucun chunk n'est chargé de force.",
+  "info.homelink_quarry.mining_head": "Fixe la vitesse de forage d'une Quarry : 1 bloc toutes les 10 s (I), 6 s (II) ou 3 s (III). Elle n'a pas de durabilité.\nLes têtes minent comme une pioche simple, sans Fortune ni Toucher de soie. Toute tête va sur tout niveau de Quarry.",
+  "info.homelink_quarry.quarry_marker": "Délimite la zone d'une Quarry : clic droit sur un bloc pour le coin A, accroupi + clic droit pour le coin B, puis clic droit sur la Quarry pour appliquer. Le départ Y est le coin le plus haut."
 }
