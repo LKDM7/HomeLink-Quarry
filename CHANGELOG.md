@@ -2,7 +2,7 @@
 
 ## 1.3.1
 
-- Requiert HomeCore 1.12.0 et HomeLink Energy 0.4.0.
+- Requiert HomeCore 1.12.0 et HomeLink Energy 0.4.1.
 - L'événement de casse est émis au nom du propriétaire de la Quarry : les mods de protection
   (claims) jugent ses droits au lieu de ceux d'un joueur générique.
 - Tests unitaires : coût énergétique exact par bloc, statuts et traductions FR/EN.
