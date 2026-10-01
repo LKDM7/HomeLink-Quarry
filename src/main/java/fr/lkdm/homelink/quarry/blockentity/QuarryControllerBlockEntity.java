@@ -751,7 +751,7 @@ public class QuarryControllerBlockEntity extends BlockEntity {
                 if (drillTicks < required) return;
             }
             // Drilling complete: the server re-checks the block, the protections and the buffer.
-            switch (QuarryMiner.mine(level, target, worldPosition, buffer)) {
+            switch (QuarryMiner.mine(level, target, worldPosition, owner, buffer)) {
                 case OUTPUT_FULL -> waiting = QuarryStatus.OUTPUT_FULL;
                 case MINED -> {
                     blocksMined++;

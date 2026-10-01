@@ -30,6 +30,7 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 /**
@@ -39,7 +40,8 @@ import org.slf4j.Logger;
 public final class QuarryMiner {
     /** Data pack extension of the configurable blacklist. */
     public static final TagKey<Block> BLACKLIST_TAG = TagKey.create(Registries.BLOCK, HomeLinkQuarry.id("quarry_blacklist"));
-    private static final GameProfile PROFILE = new GameProfile(UUID.fromString("3f0b5d4e-8c21-4a47-9b8e-2d6f1c7a9e10"), "[HomeLink Quarry]");
+    private static final String OPERATOR_NAME = "[HomeLink Quarry]";
+    private static final GameProfile PROFILE = new GameProfile(UUID.fromString("3f0b5d4e-8c21-4a47-9b8e-2d6f1c7a9e10"), OPERATOR_NAME);
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public enum Result {
@@ -58,10 +60,18 @@ public final class QuarryMiner {
         return new ItemStack(Items.NETHERITE_PICKAXE);
     }
 
-    public static FakePlayer operator(ServerLevel level, BlockPos controller) {
-        FakePlayer player = FakePlayerFactory.get(level, PROFILE);
+    /**
+     * Operator breaking blocks for a quarry. It carries the owner's identity so that claim and
+     * protection mods judge the owner's rights; without a known owner the shared identity is used.
+     */
+    public static FakePlayer operator(ServerLevel level, BlockPos controller, @Nullable UUID owner) {
+        FakePlayer player = FakePlayerFactory.get(level, profile(owner));
         player.setPos(controller.getX() + 0.5, controller.getY() + 0.5, controller.getZ() + 0.5);
         return player;
+    }
+
+    static GameProfile profile(@Nullable UUID owner) {
+        return owner == null ? PROFILE : new GameProfile(owner, OPERATOR_NAME);
     }
 
     /** True when the quarry should drill this block; false to pass over it without spending time. */
@@ -80,10 +90,10 @@ public final class QuarryMiner {
     }
 
     /** Breaks one block into the buffer, or leaves everything unchanged. */
-    public static Result mine(ServerLevel level, BlockPos pos, BlockPos controller, ItemStackHandler buffer) {
+    public static Result mine(ServerLevel level, BlockPos pos, BlockPos controller, @Nullable UUID owner, ItemStackHandler buffer) {
         BlockState state = level.getBlockState(pos);
         if (!shouldMine(level, pos, state)) return Result.SKIPPED;
-        FakePlayer operator = operator(level, controller);
+        FakePlayer operator = operator(level, controller, owner);
         if (NeoForge.EVENT_BUS.post(new BlockEvent.BreakEvent(level, pos, state, operator)).isCanceled()) return Result.SKIPPED;
 
         BlockEntity entity = level.getBlockEntity(pos);
