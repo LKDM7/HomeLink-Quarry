@@ -1,13 +1,15 @@
 package fr.lkdm.homelink.quarry.client.screen;
 
+import fr.lkdm.homecore.api.client.ui.HomeLinkTheme;
+
 /**
  * Window geometry shared with the in-game checks. Control rectangles are {x, y, width, height},
- * relative to the window, on the HomeLink Farm grid: 18-pixel buttons on 21-pixel rows.
+ * relative to the window: shared 18-pixel controls on 21-pixel rows.
  */
 public final class QuarryScreenLayout {
     public static final int WIDTH = 270;
     public static final int HEIGHT = 234;
-    public static final int BUTTON_HEIGHT = 18;
+    public static final int BUTTON_HEIGHT = HomeLinkTheme.CONTROL_HEIGHT;
     public static final int BUTTON_ROW = 21;
     public static final int BOTTOM = HEIGHT - BUTTON_HEIGHT - 6;
     public static final int ROW_2 = BOTTOM - BUTTON_ROW;

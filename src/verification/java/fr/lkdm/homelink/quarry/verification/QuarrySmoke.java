@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.AccessibilityOnboardingScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.core.registries.Registries;
@@ -150,11 +151,63 @@ public final class QuarrySmoke {
     }
 
     static Step screenshot(String name) {
+        boolean[] prepared = new boolean[1];
         return client -> {
+            if (client.getOverlay() != null) return false;
+            if (client.screen instanceof fr.lkdm.homelink.quarry.client.screen.QuarryScreen && !prepared[0]) {
+                verifyControls(client);
+                prepared[0] = true;
+                return false;
+            }
             Screenshot.grab(client.gameDirectory, "quarry-" + name + ".png", client.getMainRenderTarget(),
                     message -> LOG.info("QUARRY_SCREENSHOT {} {}", name, message.getString()));
             return true;
         };
+    }
+
+    private static void verifyControls(Minecraft client) {
+        var screen = client.screen;
+        for (var child : screen.children()) {
+            if (!(child instanceof AbstractWidget widget) || !widget.visible) continue;
+            check(widget.getX() >= 0 && widget.getY() >= 0
+                            && widget.getX() + widget.getWidth() <= screen.width
+                            && widget.getY() + widget.getHeight() <= screen.height,
+                    "Control outside viewport: " + widget.getMessage().getString());
+        }
+        screen.setFocused(null);
+        var expected = screen.children().stream().filter(AbstractWidget.class::isInstance)
+                .map(AbstractWidget.class::cast).filter(widget -> widget.active && widget.visible).toList();
+        check(!expected.isEmpty(), "Quarry screen has no active controls");
+        var visited = new java.util.HashSet<AbstractWidget>();
+        for (int i = 0; i < expected.size(); i++) {
+            screen.keyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_TAB, 0, 0);
+            check(screen.getFocused() instanceof AbstractWidget widget && widget.active && widget.visible
+                            && widget.isFocused(), "Tab did not focus an enabled visible control");
+            check(visited.add((AbstractWidget) screen.getFocused()), "Tab cycle repeated a control before visiting all controls");
+        }
+        check(visited.containsAll(expected), "Tab cycle skipped an active control");
+        LOG.info("QUARRY_UI_CONTROLS_OK viewport={}x{}", screen.width, screen.height);
+    }
+
+    /** Resizes the verification client only; the launch task runs on an isolated desktop. */
+    static void smallViewport(List<Step> steps) {
+        int[] previous = new int[3];
+        steps.add(client(client -> {
+            previous[0] = client.getWindow().getWidth();
+            previous[1] = client.getWindow().getHeight();
+            previous[2] = client.options.guiScale().get();
+            client.options.guiScale().set(2);
+            org.lwjgl.glfw.GLFW.glfwSetWindowSize(client.getWindow().getWindow(), 640, 480);
+            client.resizeDisplay();
+        }));
+        steps.add(waitTicks(5));
+        steps.add(screenshot("phase6-gui-help-small"));
+        steps.add(client(client -> {
+            client.options.guiScale().set(previous[2]);
+            org.lwjgl.glfw.GLFW.glfwSetWindowSize(client.getWindow().getWindow(), previous[0], previous[1]);
+            client.resizeDisplay();
+        }));
+        steps.add(waitTicks(5));
     }
 
     static Step log(String marker) {

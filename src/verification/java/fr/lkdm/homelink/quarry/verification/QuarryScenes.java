@@ -296,6 +296,7 @@ final class QuarryScenes {
         steps.add(click(new int[]{fr.lkdm.homelink.quarry.client.screen.QuarryScreenLayout.WIDTH - 30, 3, 20, 18}));
         steps.add(waitTicks(5));
         steps.add(screenshot("phase6-gui-help"));
+        QuarrySmoke.smallViewport(steps);
         steps.add(client(client -> client.screen.keyPressed(org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE, 0, 0)));
         steps.add(client(client -> net.neoforged.neoforge.network.PacketDistributor.sendToServer(
                 new fr.lkdm.homelink.quarry.network.QuarryPayloads.Rename(MINING_CONTROLLER, "Carrière Nord"))));

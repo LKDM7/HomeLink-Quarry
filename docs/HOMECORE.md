@@ -1,7 +1,7 @@
 # HomeLink Quarry et HomeCore
 
-HomeLink Quarry n'utilise que l'API publique `fr.lkdm.homecore.api` de HomeCore 1.13.0
-(API 1.8.0) et ne recrée aucune classe HomeCore.
+HomeLink Quarry n'utilise que l'API publique `fr.lkdm.homecore.api` de HomeCore 1.14.0
+(API 1.9.0) et ne recrée aucune classe HomeCore.
 
 ## Appareil
 

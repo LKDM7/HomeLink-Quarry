@@ -55,7 +55,7 @@ dependencies {
     // Required at runtime: the quarry only runs on HE supplied by HomeLink Energy networks.
     runtimeOnly "fr.lkdm.homelink.energy:homelink_energy:${energy_version}"
     // Only for the in-game check against a real Storage Deposit; never part of the release metadata.
-    if (withStorage) runtimeOnly "fr.lkdm.homelink.storage:homelink_storage:1.0.0"
+    if (withStorage) runtimeOnly "fr.lkdm.homelink.storage:homelink_storage:${storage_version}"
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

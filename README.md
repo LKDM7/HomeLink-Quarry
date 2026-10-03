@@ -1,6 +1,6 @@
 # HomeLink Quarry 1.4.0
 
-Minecraft 1.21.1 · NeoForge 21.1.251 · Java 21 · HomeCore 1.13.0 · HomeLink Energy 0.5.0.
+Minecraft 1.21.1 · NeoForge 21.1.251 · Java 21 · HomeCore 1.14.0 · HomeLink Energy 0.5.0.
 
 HomeLink Quarry ajoute une carrière physique : une Tête de forage visible se déplace
 au-dessus de la zone et mine **un bloc à la fois**, couche par couche, du Départ Y
@@ -22,7 +22,7 @@ Des repères I / II / III en relief permettent aussi de reconnaître chaque nive
 
 ## Installation
 
-Installer `homelink_quarry-1.4.0.jar`, `homecore-1.13.0.jar` et `homelink_energy-0.5.0.jar` dans le dossier `mods`
+Installer `homelink_quarry-1.4.0.jar`, `homecore-1.14.0.jar` et `homelink_energy-0.5.0.jar` dans le dossier `mods`
 du client et du serveur NeoForge. HomeLink Storage est facultatif.
 
 La Quarry implémente `NetworkMember` (HomeCore 1.10.0) : le Dashboard peut la lister dans sa zone radio et l’ajouter à un réseau. Son rattachement et son nom personnalisé restent les mêmes que dans son propre écran.
@@ -42,6 +42,12 @@ Depuis l’écran Actions du Dashboard, la Quarry s’allume et s’éteint (`Sw
    Changer la zone ou l'Arrêt Y commence un nouveau travail.
 
 Le bouton `?` de l'écran contient le guide complet (FR/EN).
+
+### Interface commune / Shared UI
+
+Le GUI Quarry et son aide utilisent le kit client public de **HomeCore 1.14.0**, API **1.9.0**. `QuarryTheme` et `QuarryButton` sont supprimés : les tokens, panneaux, slots, voyants, champs et boutons proviennent de `HomeLinkTheme`, `HomeLinkUi` et `HomeLinkButton`. `QuarryStatusColors` conserve le mapping des états métier. Les couleurs cuivre/rouge de l'aperçu 3D et la géométrie des inventaires restent propres à Quarry.
+
+**Developer guidance (EN):** import `fr.lkdm.homecore.api.client.ui` only in client code. New screens use `HomeLinkUi.frame(...)` / `panel(...)` / `input(...)`, `HomeLinkButton.builder(...)`, `HomeLinkTheme.CONTROL_HEIGHT`, and `HomeLinkScreenLayout.fit(...)`. Depend explicitly on HomeCore 1.14.0 with metadata `[1.14.0,2.0.0)`; Dashboard is unnecessary, including for future HomeLink Furnace. Local composite builds use compatible adjacent sources and do not automatically update from GitHub. See [migration details](docs/UI_MIGRATION.md).
 
 ## Sortie et HomeLink Storage
 
@@ -108,10 +114,14 @@ par tick au plus), `quarryTransferInterval` (20 ticks), `quarryEnergyLowThreshol
 
 ## Construire et vérifier
 
-Cloner HomeCore 1.13.0 et HomeLink Energy 0.5.0 à côté de ce projet (`../HomeCore` et `../HomeLinkEnergy`), puis activer les composites locaux :
+Cloner HomeCore 1.14.0 et HomeLink Energy 0.5.0 à côté de ce projet (`../HomeCore` et `../HomeLinkEnergy`), puis activer les composites locaux :
+
+HomeCore 1.14.0 n'a pas été publié sur Maven dans ce chantier. Les commandes
+ci-dessous compilent les sources composites compatibles ; un push Git ne publie
+pas cet artefact.
 
 ```powershell
-./gradlew.bat -PuseLocalDependencies=true build              # compilation + vérification du JAR publié
+./gradlew.bat -PuseLocalDependencies=true build              # compilation + vérification du JAR produit
 ./gradlew.bat -PuseLocalDependencies=true runGameTestServer  # GameTests serveur
 ./gradlew.bat runSmoke           # vérification en jeu (client réel, captures d'écran)
 ./gradlew.bat -PwithStorage runSmoke   # idem avec le vrai Storage Deposit (../HomeLink Storage)
@@ -120,8 +130,8 @@ Cloner HomeCore 1.13.0 et HomeLink Energy 0.5.0 à côté de ce projet (`../Home
 
 Voir [docs/VALIDATION.md](docs/VALIDATION.md).
 
-Les modèles sont générés par `python scripts/generate_models.py` (Python 3.9 ou plus,
+Les modèles sont maintenus par `python scripts/generate_models.py` (Python 3.9 ou plus,
 sans dépendances). Modifier ce script puis le relancer pour conserver la cohérence des
-modèles de blocs et d'inventaire ; les JSON générés sont inclus dans les sources.
+modèles de blocs et d'inventaire ; les JSON correspondants sont inclus dans les sources.
 
 Licence : Apache-2.0.

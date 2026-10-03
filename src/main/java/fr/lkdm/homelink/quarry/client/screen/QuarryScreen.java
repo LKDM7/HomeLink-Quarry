@@ -1,5 +1,9 @@
 package fr.lkdm.homelink.quarry.client.screen;
 
+import fr.lkdm.homecore.api.client.ui.HomeLinkTheme;
+import fr.lkdm.homecore.api.client.ui.HomeLinkUi;
+import fr.lkdm.homecore.api.client.ui.HomeLinkButton;
+
 import static fr.lkdm.homelink.quarry.client.screen.QuarryScreenLayout.BUTTON_HEIGHT;
 
 import fr.lkdm.homelink.quarry.blockentity.QuarryControllerBlockEntity;
@@ -26,18 +30,18 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
 /**
- * Quarry Controller screen in the HomeLink Dashboard style of HomeLink Farm: header with status light,
+ * Quarry Controller screen using the shared HomeLink UI: header with status light,
  * rename field, read-only status lines in a recessed panel and command buttons at the bottom.
  * Views: STATUS, AREA (depth and preview options), OUTPUT (head, energy, buffer) and the help page.
  * Values are for display only; the server validates every command.
  */
 public class QuarryScreen extends AbstractContainerScreen<QuarryMenu> {
-    protected static final int TEXT = QuarryTheme.TEXT;
-    protected static final int LABEL = QuarryTheme.MUTED;
-    protected static final int GOOD = QuarryTheme.ONLINE;
-    protected static final int WARN = QuarryTheme.WARNING;
-    protected static final int BAD = QuarryTheme.OFFLINE;
-    private static final int HEADER_HEIGHT = 24;
+    protected static final int TEXT = HomeLinkTheme.TEXT;
+    protected static final int LABEL = HomeLinkTheme.MUTED;
+    protected static final int GOOD = HomeLinkTheme.ONLINE;
+    protected static final int WARN = HomeLinkTheme.WARNING;
+    protected static final int BAD = HomeLinkTheme.OFFLINE;
+    private static final int HEADER_HEIGHT = HomeLinkTheme.HEADER_HEIGHT;
     private static final int LINE_HEIGHT = 10;
     private static final int PANEL_TOP = 56;
     private static final int LINES_TOP = PANEL_TOP + 4;
@@ -82,8 +86,8 @@ public class QuarryScreen extends AbstractContainerScreen<QuarryMenu> {
         shownStatus = menu.status();
         shownEditable = editable();
         menu.setSlotsVisible(view == View.OUTPUT && !helpOpen);
-        QuarryButton helpButton = button(Component.translatable("screen.homelink_quarry.help.button"), imageWidth - 30, 3, 20, this::toggleHelp);
-        helpButton.accentWhen(() -> helpOpen);
+        HomeLinkButton helpButton = button(Component.translatable("screen.homelink_quarry.help.button"), imageWidth - 30, 3, 20, this::toggleHelp);
+        helpButton.selectedWhen(() -> helpOpen);
         helpButton.setTooltip(Tooltip.create(Component.translatable("screen.homelink_quarry.help.tooltip")));
         if (helpOpen) {
             int bottom = QuarryScreenLayout.BOTTOM;
@@ -96,7 +100,8 @@ public class QuarryScreen extends AbstractContainerScreen<QuarryMenu> {
             return;
         }
         if (view != View.OUTPUT) {
-            nameBox = new EditBox(font, leftPos + 10, topPos + 30, 170, 16, Component.translatable("screen.homelink_quarry.name"));
+            nameBox = HomeLinkUi.input(new EditBox(font, leftPos + 10, topPos + 30, 170,
+                    HomeLinkTheme.CONTROL_HEIGHT, Component.translatable("screen.homelink_quarry.name")));
             nameBox.setMaxLength(QuarryPayloads.MAX_NAME_LENGTH);
             if (draft != null) nameBox.setValue(draft);
             else device().ifPresent(device -> nameBox.setValue(device.customName()));
@@ -167,7 +172,7 @@ public class QuarryScreen extends AbstractContainerScreen<QuarryMenu> {
         min.setTooltip(Tooltip.create(editable ? Component.translatable("screen.homelink_quarry.stop_y_min") : lockedHint));
 
         QuarryPreview.Options options = options();
-        QuarryButton preview = button(Component.translatable(options.any() ? "screen.homelink_quarry.preview_hide" : "screen.homelink_quarry.preview"),
+        HomeLinkButton preview = button(Component.translatable(options.any() ? "screen.homelink_quarry.preview_hide" : "screen.homelink_quarry.preview"),
                 QuarryScreenLayout.PREVIEW, this::pressPreview);
         preview.active = menu.hasArea();
         preview.setTooltip(Tooltip.create(Component.translatable("screen.homelink_quarry.preview_tooltip")));
@@ -177,15 +182,15 @@ public class QuarryScreen extends AbstractContainerScreen<QuarryMenu> {
         button(Component.translatable("screen.homelink_quarry.back"), QuarryScreenLayout.BACK, () -> switchView(View.STATUS));
     }
 
-    /** ON/OFF option: gold while ON, with the state written in the label. */
+    /** ON/OFF option: pressed with copper text while ON; the label also states its value. */
     private void toggle(String key, int[] bounds, java.util.function.BooleanSupplier get, java.util.function.Consumer<Boolean> set) {
-        QuarryButton[] holder = new QuarryButton[1];
+        HomeLinkButton[] holder = new HomeLinkButton[1];
         holder[0] = button(toggleLabel(key, get.getAsBoolean()), bounds, () -> {
             set.accept(!get.getAsBoolean());
             holder[0].setMessage(toggleLabel(key, get.getAsBoolean()));
             rebuildWidgets();
         });
-        holder[0].accentWhen(get);
+        holder[0].selectedWhen(get);
         holder[0].active = menu.hasArea();
     }
 
@@ -250,12 +255,12 @@ public class QuarryScreen extends AbstractContainerScreen<QuarryMenu> {
         helpDown.active = help.offset() < help.maxOffset();
     }
 
-    private QuarryButton button(Component label, int[] bounds, Runnable action) {
+    private HomeLinkButton button(Component label, int[] bounds, Runnable action) {
         return button(label, bounds[0], bounds[1], bounds[2], action);
     }
 
-    private QuarryButton button(Component label, int x, int y, int width, Runnable action) {
-        return addRenderableWidget((QuarryButton) QuarryButton.builder(label, pressed -> action.run())
+    private HomeLinkButton button(Component label, int x, int y, int width, Runnable action) {
+        return addRenderableWidget(HomeLinkButton.builder(label, pressed -> action.run())
                 .bounds(leftPos + x, topPos + y, width, BUTTON_HEIGHT).build());
     }
 
@@ -324,7 +329,7 @@ public class QuarryScreen extends AbstractContainerScreen<QuarryMenu> {
                 : Component.translatable(check.key());
         lines.add(line("screen.homelink_quarry.validation", validation, !area ? WARN : check.valid() ? GOOD : BAD));
         lines.add(line("screen.homelink_quarry.start_y", area ? Component.literal("Y " + menu.startY()) : dash(), TEXT));
-        lines.add(line("screen.homelink_quarry.stop_y", area ? Component.literal("Y " + menu.stopY()) : dash(), editable() ? QuarryTheme.ACCENT : TEXT));
+        lines.add(line("screen.homelink_quarry.stop_y", area ? Component.literal("Y " + menu.stopY()) : dash(), editable() ? HomeLinkTheme.ACCENT : TEXT));
         lines.add(line("screen.homelink_quarry.layers", area ? number(Math.max(0, menu.startY() - menu.stopY() + 1)) : dash(), TEXT));
         lines.add(line("screen.homelink_quarry.current_layer", area && menu.status() != QuarryStatus.FINISHED
                 ? Component.literal("Y " + menu.layerY()) : dash(), TEXT));
@@ -333,7 +338,7 @@ public class QuarryScreen extends AbstractContainerScreen<QuarryMenu> {
                 : Component.literal(target.getX() + " " + target.getY() + " " + target.getZ()), TEXT));
         QuarryPreview.Options options = options();
         lines.add(line("screen.homelink_quarry.preview_state", Component.translatable(options.any()
-                ? "screen.homelink_quarry.preview_on" : "screen.homelink_quarry.preview_off"), options.any() ? QuarryTheme.ACCENT : LABEL));
+                ? "screen.homelink_quarry.preview_on" : "screen.homelink_quarry.preview_off"), options.any() ? HomeLinkTheme.ACCENT : LABEL));
     }
 
     private Component areaValue() {
@@ -344,20 +349,20 @@ public class QuarryScreen extends AbstractContainerScreen<QuarryMenu> {
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        QuarryTheme.window(graphics, leftPos, topPos, imageWidth, imageHeight, HEADER_HEIGHT);
+        HomeLinkUi.window(graphics, leftPos, topPos, imageWidth, imageHeight, HEADER_HEIGHT);
         if (helpOpen) {
             help.render(graphics);
             return;
         }
         if (view == View.OUTPUT) {
-            for (var slot : menu.slots) if (slot.isActive()) QuarryTheme.slot(graphics, leftPos + slot.x, topPos + slot.y);
-            QuarryTheme.divider(graphics, leftPos + 10, topPos + QuarryScreenLayout.BOTTOM - 4, imageWidth - 20);
+            for (var slot : menu.slots) if (slot.isActive()) HomeLinkUi.slot(graphics, leftPos + slot.x, topPos + slot.y);
+            HomeLinkUi.separator(graphics, leftPos + 10, topPos + QuarryScreenLayout.BOTTOM - 4, imageWidth - 20);
             return;
         }
-        QuarryTheme.divider(graphics, leftPos + 10, topPos + 52, imageWidth - 20);
+        HomeLinkUi.separator(graphics, leftPos + 10, topPos + 52, imageWidth - 20);
         int firstRow = view == View.STATUS ? QuarryScreenLayout.ROW_2 : QuarryScreenLayout.ROW_1;
-        QuarryTheme.divider(graphics, leftPos + 10, topPos + firstRow - 4, imageWidth - 20);
-        QuarryTheme.panel(graphics, leftPos + 10, topPos + PANEL_TOP, imageWidth - 20, lines().size() * LINE_HEIGHT + 7);
+        HomeLinkUi.separator(graphics, leftPos + 10, topPos + firstRow - 4, imageWidth - 20);
+        HomeLinkUi.panel(graphics, leftPos + 10, topPos + PANEL_TOP, imageWidth - 20, lines().size() * LINE_HEIGHT + 7);
     }
 
     @Override
@@ -365,14 +370,14 @@ public class QuarryScreen extends AbstractContainerScreen<QuarryMenu> {
         QuarryStatus status = menu.status();
         String statusText = font.plainSubstrByWidth(Component.translatable(status.key()).getString(), 90);
         int statusX = imageWidth - 38 - font.width(statusText);
-        QuarryTheme.statusLight(graphics, statusX - 12, 8, QuarryTheme.status(status));
+        HomeLinkUi.statusDot(graphics, statusX - 12, 8, QuarryStatusColors.color(status));
         graphics.drawString(font, statusText, statusX, 8, LABEL, false);
         Optional<QuarryControllerBlockEntity> device = device();
         Component heading = device.map(QuarryControllerBlockEntity::displayName).orElse(title);
         boolean renamed = device.filter(named -> !named.customName().isEmpty()).isPresent();
-        graphics.drawString(font, font.plainSubstrByWidth(heading.getString(), statusX - 30), 14, 8, renamed ? QuarryTheme.ACCENT : TEXT, false);
+        graphics.drawString(font, font.plainSubstrByWidth(heading.getString(), statusX - 30), 14, 8, renamed ? HomeLinkTheme.ACCENT : TEXT, false);
         if (helpOpen) {
-            graphics.drawString(font, Component.translatable("screen.homelink_quarry.help.title"), 12, 30, QuarryTheme.ACCENT, false);
+            graphics.drawString(font, Component.translatable("screen.homelink_quarry.help.title"), 12, 30, HomeLinkTheme.ACCENT, false);
             return;
         }
         if (view == View.OUTPUT) {
@@ -396,7 +401,7 @@ public class QuarryScreen extends AbstractContainerScreen<QuarryMenu> {
             graphics.drawString(font, value, valueX, y, line.color(), false);
             if (line.bar() >= 0) {
                 int barX = valueX + font.width(value) + 6;
-                QuarryTheme.gauge(graphics, barX, y + 2, imageWidth - 16 - barX, line.bar(), line.color() == TEXT ? QuarryTheme.ACCENT : line.color());
+                HomeLinkUi.gauge(graphics, barX, y + 2, imageWidth - 16 - barX, line.bar(), line.color() == TEXT ? HomeLinkTheme.ACCENT : line.color());
             }
             y += LINE_HEIGHT;
         }
@@ -426,7 +431,7 @@ public class QuarryScreen extends AbstractContainerScreen<QuarryMenu> {
                 sendRename();
                 return true;
             }
-            if (keyCode != GLFW.GLFW_KEY_ESCAPE) return nameBox.keyPressed(keyCode, scanCode, modifiers) || nameBox.canConsumeInput();
+            if (keyCode != GLFW.GLFW_KEY_ESCAPE && keyCode != GLFW.GLFW_KEY_TAB) return nameBox.keyPressed(keyCode, scanCode, modifiers) || nameBox.canConsumeInput();
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
