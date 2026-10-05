@@ -134,4 +134,4 @@ Les modèles sont maintenus par `python scripts/generate_models.py` (Python 3.9 
 sans dépendances). Modifier ce script puis le relancer pour conserver la cohérence des
 modèles de blocs et d'inventaire ; les JSON correspondants sont inclus dans les sources.
 
-Licence : Apache-2.0.
+Licence : tous droits réservés, auteur LKDM. Voir [LICENSE](LICENSE).
