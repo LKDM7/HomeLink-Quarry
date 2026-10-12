@@ -212,7 +212,7 @@ if (curseForgePublishRequested && !curseForgeToken?.trim()) {
 
 tasks.register('publishToCurseForge', net.darkhax.curseforgegradle.TaskPublishCurseForge) {
     group = 'publishing'
-    description = 'Builds and uploads the HomeLink Quarry release JAR to CurseForge project 1725202.'
+    description = 'Builds and uploads the HomeLink Quarry release JAR to CurseForge project 1737838.'
     dependsOn tasks.named('check')
     // Publishing is excluded from the configuration cache so the API token is never cached.
     notCompatibleWithConfigurationCache('The CurseForge upload reads its API token only when publishing.')
@@ -220,7 +220,7 @@ tasks.register('publishToCurseForge', net.darkhax.curseforgegradle.TaskPublishCu
     apiToken = curseForgeToken
     debugMode = providers.gradleProperty('curseforge_dry_run').map { it.toBoolean() }.getOrElse(false)
 
-    def mainFile = upload(1725202, tasks.named('jar'))
+    def mainFile = upload(1737838, tasks.named('jar'))
     mainFile.displayName = "HomeLink Quarry ${curseForgeVersion}"
     mainFile.changelog = "HomeLink Quarry ${curseForgeVersion} for Minecraft ${minecraft_version} and NeoForge ${neo_version}."
     mainFile.changelogType = 'markdown'
